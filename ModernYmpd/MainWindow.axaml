@@ -1,0 +1,277 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ModernYmpd.MainWindow"
+        Title="Modern YMPD" Width="1180" Height="780"
+        MinWidth="820" MinHeight="580"
+        Background="#10151D" Foreground="#EEF2F5">
+  <Window.Styles>
+    <Style Selector="Button">
+      <Setter Property="Background" Value="#263443" />
+      <Setter Property="Foreground" Value="#EEF2F5" />
+      <Setter Property="BorderBrush" Value="#3A4A59" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Padding" Value="12,8" />
+      <Setter Property="Margin" Value="3" />
+    </Style>
+    <Style Selector="Button:pointerover"><Setter Property="Background" Value="#334657" /></Style>
+    <Style Selector="Button.accent">
+      <Setter Property="Background" Value="#B8F36B" />
+      <Setter Property="Foreground" Value="#172316" />
+      <Setter Property="BorderBrush" Value="#B8F36B" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style Selector="Button.accent:pointerover"><Setter Property="Background" Value="#D4FFA5" /></Style>
+    <Style Selector="TextBox">
+      <Setter Property="Background" Value="#151D28" />
+      <Setter Property="Foreground" Value="#EEF2F5" />
+      <Setter Property="BorderBrush" Value="#3A4A59" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Padding" Value="12,9" />
+    </Style>
+    <Style Selector="ListBox">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="ListBoxItem">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="0,2" />
+      <Setter Property="CornerRadius" Value="9" />
+    </Style>
+    <Style Selector="TabControl">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="TabItem">
+      <Setter Property="Foreground" Value="#A9B7C4" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Padding" Value="16,11" />
+    </Style>
+    <Style Selector="TabItem:selected"><Setter Property="Foreground" Value="#B8F36B" /></Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="28,20,28,18" RowSpacing="16">
+    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+      <Border Width="35" Height="35" CornerRadius="10" Background="#B8F36B" VerticalAlignment="Center">
+        <TextBlock Text="▶" Foreground="#172316" FontSize="16" FontWeight="Bold"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+      </Border>
+      <StackPanel Grid.Column="1" Margin="11,0,0,0" Spacing="1">
+        <TextBlock Text="modern ympd" FontSize="21" FontWeight="Bold" />
+        <TextBlock Text="MPD desktop player + library shuffle" FontSize="11" Foreground="#99A8B6" />
+      </StackPanel>
+      <Border Grid.Column="2" Background="#202D39" BorderBrush="#344654" BorderThickness="1"
+              CornerRadius="9" Padding="12,7" VerticalAlignment="Center">
+        <TextBlock Text="{Binding ConnectionStatus}" FontSize="12" Foreground="#B8F36B" />
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="1" Background="#233347" BorderBrush="#3D5146" BorderThickness="1"
+            CornerRadius="16" Padding="22,17,22,18">
+      <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="●  NOW PLAYING" FontSize="11" FontWeight="Bold" Foreground="#B8F36B" VerticalAlignment="Center" />
+          <Border Grid.Column="1" Background="#334A3E" CornerRadius="7" Padding="8,4"
+                  IsVisible="{Binding HasBitrate}">
+            <TextBlock Text="{Binding BitrateText}" FontSize="11" Foreground="#B8F36B" />
+          </Border>
+        </Grid>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="20" VerticalAlignment="Center">
+          <StackPanel Grid.Column="0" Spacing="3" MinWidth="0">
+            <TextBlock Text="{Binding TrackTitle}" FontSize="25" FontWeight="Bold"
+                       TextTrimming="CharacterEllipsis" MaxLines="1" />
+            <TextBlock Text="{Binding TrackSubtitle}" FontSize="13" Foreground="#C1CED6"
+                       TextTrimming="CharacterEllipsis" MaxLines="1" />
+            <TextBlock Text="{Binding ComposerText}" FontSize="12" Foreground="#B8F36B"
+                       IsVisible="{Binding HasComposer}" TextTrimming="CharacterEllipsis" MaxLines="1" />
+            <TextBlock Text="{Binding FilePathText}" FontSize="11" Foreground="#99A8B6"
+                       IsVisible="{Binding IsFilePathVisible}" TextTrimming="CharacterEllipsis" MaxLines="1" />
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+            <Button Content="⏮" Width="43" Height="42" FontSize="17" Click="Previous_Click" ToolTip.Tip="Previous track" />
+            <Button Content="■" Width="43" Height="42" FontSize="17" Click="Stop_Click" ToolTip.Tip="Stop" />
+            <Button Classes="accent" Content="{Binding PlayPauseIcon}" Width="48" Height="44" FontSize="19"
+                    Click="PlayPause_Click" ToolTip.Tip="Play or pause" />
+            <Button Content="⏭" Width="43" Height="42" FontSize="17" Click="Next_Click" ToolTip.Tip="Next track" />
+          </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalAlignment="Center">
+          <TextBlock Text="{Binding ElapsedText}" FontSize="11" Foreground="#99A8B6" VerticalAlignment="Center" />
+          <Slider x:Name="SeekSlider" Grid.Column="1" Minimum="0" Maximum="{Binding TrackDuration}"
+                  Value="{Binding ElapsedSeconds, Mode=OneWay}" PointerReleased="Seek_Released" />
+          <TextBlock Grid.Column="2" Text="{Binding DurationText}" FontSize="11" Foreground="#99A8B6" VerticalAlignment="Center" />
+        </Grid>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,250" ColumnSpacing="16" MinHeight="0">
+      <Border Grid.Column="0" Background="#1A222E" BorderBrush="#303B49" BorderThickness="1"
+              CornerRadius="16" Padding="12,8,12,12">
+        <TabControl x:Name="Pages">
+          <TabItem Header="Queue">
+            <Grid RowDefinitions="Auto,*" Margin="8,10,8,4" RowSpacing="8">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{Binding QueueHeading}" FontSize="19" FontWeight="Bold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Clear queue" Click="ClearQueue_Click" />
+              </Grid>
+              <ListBox x:Name="QueueList" Grid.Row="1" ItemsSource="{Binding Queue}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <Border Background="#212C3A" CornerRadius="9" Padding="11,7" Margin="0,2">
+                      <Grid ColumnDefinitions="35,*,Auto,Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding PositionText}" Foreground="#99A8B6" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
+                          <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1" />
+                          <TextBlock Text="{Binding DisplayArtist}" FontSize="11" Foreground="#99A8B6"
+                                     TextTrimming="CharacterEllipsis" MaxLines="1" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" Text="{Binding DurationText}" Foreground="#99A8B6"
+                                   FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <Button Grid.Column="3" Content="Play" Click="QueuePlay_Click" />
+                        <Button Grid.Column="4" Content="×" Click="QueueRemove_Click" ToolTip.Tip="Remove from queue" />
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Grid>
+          </TabItem>
+
+          <TabItem Header="Library">
+            <Grid RowDefinitions="Auto,*" Margin="8,10,8,4" RowSpacing="8">
+              <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Content="← Back" Click="BrowseBack_Click" />
+                <TextBlock Grid.Column="1" Text="{Binding BrowserPathDisplay}" FontSize="16" FontWeight="Bold"
+                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="10,0" />
+                <Button Grid.Column="2" Content="Refresh" Click="BrowseRefresh_Click" />
+              </Grid>
+              <ScrollViewer Grid.Row="1">
+                <StackPanel Spacing="10">
+                  <ItemsControl ItemsSource="{Binding Folders}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                Content="{Binding DisplayName}" Click="BrowseFolder_Click" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <ItemsControl ItemsSource="{Binding Playlists}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                Content="{Binding DisplayName}" Click="BrowsePlaylist_Click" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <ItemsControl ItemsSource="{Binding BrowseSongs}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border Background="#212C3A" CornerRadius="9" Padding="10,6" Margin="0,2">
+                          <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="5" VerticalAlignment="Center">
+                            <StackPanel Spacing="2" MinWidth="0">
+                              <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                              <TextBlock Text="{Binding DisplayArtist}" FontSize="11" Foreground="#99A8B6" />
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="Next" Click="BrowseNext_Click" />
+                            <Button Grid.Column="2" Content="Add" Click="BrowseAdd_Click" />
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </ScrollViewer>
+            </Grid>
+          </TabItem>
+
+          <TabItem Header="Search">
+            <Grid RowDefinitions="Auto,Auto,*" Margin="8,10,8,4" RowSpacing="8">
+              <Grid ColumnDefinitions="*,Auto" Grid.Row="0">
+                <TextBox x:Name="SearchBox" PlaceholderText="Search title, artist, album…" KeyDown="Search_KeyDown" />
+                <Button Grid.Column="1" Classes="accent" Content="Search" Click="Search_Click" />
+              </Grid>
+              <TextBlock Grid.Row="1" Text="{Binding SearchHeading}" Foreground="#99A8B6" FontSize="12" />
+              <ListBox Grid.Row="2" ItemsSource="{Binding SearchResults}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <Border Background="#212C3A" CornerRadius="9" Padding="10,6" Margin="0,2">
+                      <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="5" VerticalAlignment="Center">
+                        <StackPanel Spacing="2" MinWidth="0">
+                          <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding DisplayArtist}" FontSize="11" Foreground="#99A8B6" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Classes="accent" Content="Next" Click="SearchNext_Click" />
+                        <Button Grid.Column="2" Content="Add" Click="SearchAdd_Click" />
+                        <Button Grid.Column="3" Content="Play" Click="SearchPlay_Click" />
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Grid>
+          </TabItem>
+
+          <TabItem Header="Settings">
+            <ScrollViewer Margin="12,12,12,4">
+              <StackPanel Spacing="12" MaxWidth="610" HorizontalAlignment="Left">
+                <TextBlock Text="Connection" FontSize="19" FontWeight="Bold" />
+                <Grid ColumnDefinitions="*,100" ColumnSpacing="10">
+                  <StackPanel Spacing="5">
+                    <TextBlock Text="MPD host" Foreground="#99A8B6" />
+                    <TextBox x:Name="HostBox" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Spacing="5">
+                    <TextBlock Text="Port" Foreground="#99A8B6" />
+                    <TextBox x:Name="PortBox" />
+                  </StackPanel>
+                </Grid>
+                <StackPanel Spacing="5">
+                  <TextBlock Text="MPD password (kept only for this session)" Foreground="#99A8B6" />
+                  <TextBox x:Name="PasswordBox" PasswordChar="●" />
+                </StackPanel>
+                <TextBlock Text="Library shuffle" FontSize="19" FontWeight="Bold" Margin="0,10,0,0" />
+                <CheckBox x:Name="AutoFillCheck" Content="Fill queue with random library tracks" />
+                <StackPanel Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                  <TextBlock Text="Keep at least" VerticalAlignment="Center" />
+                  <TextBox x:Name="FillTargetBox" Width="64" HorizontalContentAlignment="Center" />
+                  <TextBlock Text="tracks in the queue (1–500)" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="The app keeps filling while it runs. If the queue is empty, playback starts automatically."
+                           Foreground="#99A8B6" TextWrapping="Wrap" />
+                <TextBlock Text="Display" FontSize="19" FontWeight="Bold" Margin="0,10,0,0" />
+                <CheckBox x:Name="ShowFilePathCheck" Content="Show MPD file path below composer" />
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
+                  <Button Classes="accent" Content="Save and connect" Click="SaveSettings_Click" />
+                  <Button Content="Update MPD database" Click="UpdateDatabase_Click" />
+                  <Button Content="Check MPD library" Click="ReloadLibrary_Click" />
+                </StackPanel>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+        </TabControl>
+      </Border>
+
+      <Border Grid.Column="1" Background="#1A222E" BorderBrush="#303B49" BorderThickness="1"
+              CornerRadius="16" Padding="18">
+        <StackPanel Spacing="13">
+          <TextBlock Text="PLAYBACK" FontSize="11" FontWeight="Bold" Foreground="#B8F36B" />
+          <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+            <TextBlock Text="Volume" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{Binding VolumeText}" Foreground="#99A8B6" />
+          </Grid>
+          <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100"
+                  Value="{Binding Volume, Mode=OneWay}" PointerReleased="Volume_Released" />
+          <CheckBox x:Name="RandomCheck" Content="MPD random" Click="Random_Click" />
+          <CheckBox x:Name="RepeatCheck" Content="Repeat queue" Click="Repeat_Click" />
+          <CheckBox x:Name="ConsumeCheck" Content="Consume played tracks" Click="Consume_Click" />
+          <Border Height="1" Background="#303B49" Margin="0,6" />
+          <TextBlock Text="LIBRARY SHUFFLE" FontSize="11" FontWeight="Bold" Foreground="#B8F36B" />
+          <TextBlock Text="{Binding ShuffleStatus}" Foreground="#99A8B6" TextWrapping="Wrap" FontSize="12" />
+          <Button Content="Shuffle settings" Click="OpenSettings_Click" HorizontalAlignment="Stretch" />
+        </StackPanel>
+      </Border>
+    </Grid>
+    <TextBlock Grid.Row="3" Text="{Binding Message}" Foreground="#99A8B6" FontSize="12"
+               TextTrimming="CharacterEllipsis" />
+  </Grid>
+</Window>
