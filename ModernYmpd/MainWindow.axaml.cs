@@ -43,6 +43,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private Slider SeekInput => this.FindControl<Slider>("SeekSlider")!;
     private Slider VolumeInput => this.FindControl<Slider>("VolumeSlider")!;
     private ListBox QueueInput => this.FindControl<ListBox>("QueueList")!;
+    private Border DragPreview => this.FindControl<Border>("DragGhost")!;
     private TabControl PageInput => this.FindControl<TabControl>("Pages")!;
 
     public new event PropertyChangedEventHandler? PropertyChanged;
@@ -51,6 +52,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public ObservableCollection<MpdEntry> Folders { get; } = [];
     public ObservableCollection<MpdEntry> Playlists { get; } = [];
     public ObservableCollection<MpdSong> BrowseSongs { get; } = [];
+    public bool AutoFillEnabled => settings.AutoFillEnabled;
 
     private string connectionStatus = "Connecting…";
     public string ConnectionStatus { get => connectionStatus; private set => Set(ref connectionStatus, value); }
@@ -258,7 +260,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             draggingQueueSong = true;
             dragSource?.Classes.Add("queue-dragging");
             e.Pointer.Capture(QueueInput);
+            this.FindControl<TextBlock>("DragGhostPosition")!.Text = dragSong.PositionText;
+            this.FindControl<TextBlock>("DragGhostTitle")!.Text = dragSong.DisplayTitle;
+            this.FindControl<TextBlock>("DragGhostArtist")!.Text = dragSong.DisplayArtist;
+            this.FindControl<TextBlock>("DragGhostDuration")!.Text = dragSong.DurationText;
+            DragPreview.Width = Math.Max(120, QueueInput.Bounds.Width - 16);
+            DragPreview.IsVisible = true;
         }
+        Canvas.SetLeft(DragPreview, 8);
+        Canvas.SetTop(DragPreview, Math.Clamp(point.Y - 28, 0, Math.Max(0, QueueInput.Bounds.Height - 56)));
         SetQueueDropTarget(FindQueueRow(point), point);
         e.Handled = true;
     }
@@ -308,6 +318,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         if (dropTarget is not null) ClearQueueDropMark(dropTarget);
         dragSource?.Classes.Remove("queue-dragging");
+        DragPreview.IsVisible = false;
         var pointer = dragPointer;
         dropTarget = null;
         dragSource = null;

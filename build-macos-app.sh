@@ -13,7 +13,7 @@ case "$(uname -m)" in
 esac
 
 publish="$dist/publish-$runtime"
-app="$dist/Modern YMPD.app"
+app="$dist/Avalonia YMPD.app"
 mkdir -p "$publish" "$app/Contents/MacOS" "$app/Contents/Resources"
 "$dotnet" restore "$project" -r "$runtime" --source https://api.nuget.org/v3/index.json
 "$dotnet" publish "$project" -c Release -r "$runtime" --self-contained true \
@@ -26,9 +26,9 @@ cat > "$app/Contents/Info.plist" <<PLIST
 <plist version="1.0"><dict>
   <key>CFBundleName</key><string>Modern YMPD</string>
   <key>CFBundleDisplayName</key><string>Modern YMPD</string>
-  <key>CFBundleIdentifier</key><string>org.modernympd.desktop</string>
-  <key>CFBundleVersion</key><string>1</string>
-  <key>CFBundleShortVersionString</key><string>0.1.0</string>
+  <key>CFBundleIdentifier</key><string>org.lordmyschkin.avaloniaympd</string>
+  <key>CFBundleVersion</key><string>2</string>
+  <key>CFBundleShortVersionString</key><string>0.2.0</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleExecutable</key><string>ModernYmpd</string>
   <key>CFBundleIconFile</key><string>app.icns</string>

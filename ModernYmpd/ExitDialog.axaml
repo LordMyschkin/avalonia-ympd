@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ModernYmpd.ExitDialog"
+        Title="Modern YMPD schließen"
+        Width="470" Height="235" MinWidth="470" MinHeight="235"
+        CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#17212C" Foreground="#EEF2F5">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="24" RowSpacing="14">
+    <TextBlock Text="Modern YMPD schließen?" FontSize="20" FontWeight="Bold" />
+    <StackPanel Grid.Row="1" Spacing="8">
+      <TextBlock Text="Soll Modern YMPD die Playlist weiter befüllen oder vollständig beendet werden?"
+                 TextWrapping="Wrap" />
+      <TextBlock x:Name="FillStatus" Foreground="#B8F36B" TextWrapping="Wrap" />
+    </StackPanel>
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Content="Abbrechen" Click="Cancel_Click" />
+      <Button x:Name="KeepRunningButton" Content="Im Hintergrund weiter" Click="KeepRunning_Click" />
+      <Button Content="Vollständig beenden" Click="Quit_Click"
+              Background="#B8F36B" Foreground="#172316" FontWeight="Bold" />
+    </StackPanel>
+  </Grid>
+</Window>

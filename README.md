@@ -5,13 +5,14 @@ the ympd web service is not required.
 
 ## Features
 
-- Queue with drag-and-drop reordering, library folders, stored playlists, and search
+- Queue with drag-and-drop reordering and a floating track preview, library folders,
+  stored playlists, and search
 - Previous, stop, play/pause, next, seek, volume, MPD random, repeat, and consume
 - Composer, bitrate, and optional MPD file path in Now Playing
 - Add a search or library result next, add it to the end, or play it immediately
 - Keep the queue filled to a chosen size with random library songs
-- Keep running in the macOS menu bar after closing the window; use the menu to
-  reopen the window or quit
+- When closing or quitting, choose whether the app keeps running in the
+  background (including queue filling when enabled) or exits completely
 
 The random filler uses MPD's `searchcount` and `search ... window` commands. It
 chooses random library positions, then avoids songs already queued and the last
@@ -32,7 +33,7 @@ On macOS, build a self-contained `.app` bundle with:
 
 ```sh
 ./build-macos-app.sh
-open "dist/Modern YMPD.app"
+open "dist/Avalonia YMPD.app"
 ```
 
 The bundle contains its .NET runtime. It is built for the Mac's current CPU

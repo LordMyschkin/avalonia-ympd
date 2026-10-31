@@ -125,7 +125,8 @@
                 <TextBlock Text="{Binding QueueHeading}" FontSize="19" FontWeight="Bold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Clear queue" Click="ClearQueue_Click" />
               </Grid>
-              <ListBox x:Name="QueueList" Grid.Row="1" ItemsSource="{Binding Queue}"
+              <Grid Grid.Row="1" ClipToBounds="True">
+              <ListBox x:Name="QueueList" ItemsSource="{Binding Queue}"
                        PointerMoved="Queue_PointerMoved" PointerReleased="Queue_PointerReleased"
                        PointerCaptureLost="Queue_PointerCaptureLost">
                 <ListBox.ItemTemplate>
@@ -151,6 +152,24 @@
                   </DataTemplate>
                 </ListBox.ItemTemplate>
               </ListBox>
+              <Canvas IsHitTestVisible="False" ClipToBounds="True">
+                <Border x:Name="DragGhost" IsVisible="False" Height="56"
+                        Background="#334657" BorderBrush="#B8F36B" BorderThickness="2"
+                        CornerRadius="9" Padding="11,7" Opacity="0.94">
+                  <Grid ColumnDefinitions="50,*,Auto" ColumnSpacing="6" VerticalAlignment="Center">
+                    <TextBlock x:Name="DragGhostPosition" Foreground="#B8F36B" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
+                      <TextBlock x:Name="DragGhostTitle" FontWeight="SemiBold"
+                                 TextTrimming="CharacterEllipsis" MaxLines="1" />
+                      <TextBlock x:Name="DragGhostArtist" FontSize="11" Foreground="#BDCBD6"
+                                 TextTrimming="CharacterEllipsis" MaxLines="1" />
+                    </StackPanel>
+                    <TextBlock x:Name="DragGhostDuration" Grid.Column="2" Foreground="#BDCBD6"
+                               FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
+                  </Grid>
+                </Border>
+              </Canvas>
+              </Grid>
             </Grid>
           </TabItem>
 

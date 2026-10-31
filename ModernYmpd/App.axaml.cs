@@ -21,17 +21,44 @@ public partial class App : Application
             desktop.MainWindow = window;
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var quitting = false;
-            window.Closing += (_, e) =>
+            var promptOpen = false;
+            async Task AskBeforeExitAsync()
+            {
+                if (promptOpen) { window.Activate(); return; }
+                promptOpen = true;
+                var wasVisible = window.IsVisible;
+                try
+                {
+                    if (!wasVisible) window.Show();
+                    window.Activate();
+                    var choice = await new ExitDialog(window.AutoFillEnabled).ShowDialog<ExitChoice>(window);
+                    if (choice == ExitChoice.KeepRunning) window.Hide();
+                    else if (choice == ExitChoice.Quit)
+                    {
+                        quitting = true;
+                        desktop.Shutdown();
+                    }
+                    else if (!wasVisible) window.Hide();
+                }
+                finally { promptOpen = false; }
+            }
+            window.Closing += async (_, e) =>
             {
                 if (quitting) return;
                 e.Cancel = true;
-                window.Hide();
+                await AskBeforeExitAsync();
+            };
+            desktop.ShutdownRequested += async (_, e) =>
+            {
+                if (quitting) return;
+                e.Cancel = true;
+                await AskBeforeExitAsync();
             };
 
             var show = new NativeMenuItem("Show Modern YMPD");
             show.Click += (_, _) => { window.Show(); window.Activate(); };
             var quit = new NativeMenuItem("Quit Modern YMPD");
-            quit.Click += (_, _) => { quitting = true; desktop.Shutdown(); };
+            quit.Click += async (_, _) => await AskBeforeExitAsync();
             var menu = new NativeMenu();
             menu.Items.Add(show);
             menu.Items.Add(new NativeMenuItemSeparator());
@@ -43,6 +70,7 @@ public partial class App : Application
                 Menu = menu
             };
             TrayIcon.SetIcons(this, new TrayIcons { tray });
+            MacDockIcon.Apply();
         }
 
         base.OnFrameworkInitializationCompleted();
