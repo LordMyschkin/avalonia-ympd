@@ -37,4 +37,6 @@ cat > "$app/Contents/Info.plist" <<PLIST
 </dict></plist>
 PLIST
 plutil -lint "$app/Contents/Info.plist"
+codesign --force --deep --sign - "$app"
+codesign --verify --deep --strict "$app"
 echo "Built: $app"
