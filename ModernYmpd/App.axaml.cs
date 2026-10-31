@@ -20,6 +20,11 @@ public partial class App : Application
             var window = new MainWindow();
             desktop.MainWindow = window;
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            if (Program.ScreenshotDirectory is not null)
+            {
+                base.OnFrameworkInitializationCompleted();
+                return;
+            }
             var quitting = false;
             var promptOpen = false;
             async Task AskBeforeExitAsync()

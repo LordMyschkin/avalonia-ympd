@@ -5,12 +5,18 @@ namespace ModernYmpd;
 
 class Program
 {
+    public static string? ScreenshotDirectory { get; private set; }
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--render-screenshots")
+        {
+            ScreenshotDirectory = Path.GetFullPath(args[1]);
+            return BuildAvaloniaApp().StartWithClassicDesktopLifetime([]);
+        }
         if (args.Length > 0 && args[0] == "--check-mpd")
         {
             try

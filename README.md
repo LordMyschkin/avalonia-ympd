@@ -20,6 +20,36 @@ chooses random library positions, then avoids songs already queued and the last
 It checks the queue every five seconds while the app is running. When it fills
 an empty, stopped queue, it starts playback.
 
+## Download
+
+Get the [latest release](https://github.com/LordMyschkin/avalonia-ympd/releases/latest):
+
+- **macOS Apple Silicon:** download the DMG and drag `Avalonia YMPD.app` to Applications.
+- **Windows x64:** download and run the single-file EXE.
+
+Both downloads include the .NET runtime. The macOS app is ad hoc signed; the
+Windows EXE is unsigned.
+
+## Screenshots
+
+These images use a sample library with invented song metadata.
+
+### Queue and now playing
+
+![Queue and now playing](docs/screenshots/queue.png)
+
+### Library
+
+![Library](docs/screenshots/library.png)
+
+### Search
+
+![Search](docs/screenshots/search.png)
+
+### Settings
+
+![Settings](docs/screenshots/settings.png)
+
 ## Build and run
 
 Install the .NET 10 SDK, then run from the repository root:
@@ -35,6 +65,14 @@ On macOS, build a self-contained `.app` bundle with:
 ./build-macos-app.sh
 open "dist/Avalonia YMPD.app"
 ```
+
+On macOS, `./build-macos-dmg.sh` packages this app in a DMG.
+
+To cross-build the self-contained Windows x64 EXE from macOS or Linux, run
+`./build-windows-exe.sh`. The result is `dist/Avalonia-YMPD-win-x64.exe`.
+
+To regenerate the sample screenshots, run
+`dotnet run --project ModernYmpd/ModernYmpd.csproj -- --render-screenshots docs/screenshots`.
 
 The bundle contains its .NET runtime. It is built for the Mac's current CPU
 architecture, includes the app icon, and can be moved to `Applications`. The

@@ -6,6 +6,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 
@@ -106,6 +108,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         AutoFillInput.IsChecked = settings.AutoFillEnabled;
         FilePathInput.IsChecked = settings.ShowFilePath;
         UpdateShuffleStatus();
+        if (Program.ScreenshotDirectory is { } screenshotDirectory)
+        {
+            PopulateDemo();
+            Opened += async (_, _) => await RenderDemoScreenshotsAsync(screenshotDirectory);
+            return;
+        }
         refreshTimer.Tick += async (_, _) => await RefreshAsync();
         Opened += async (_, _) =>
         {
@@ -124,6 +132,88 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         Notify(property);
     }
     private void Notify(string? name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    private void PopulateDemo()
+    {
+        settings.ShowFilePath = true;
+        settings.AutoFillEnabled = true;
+        FilePathInput.IsChecked = true;
+        AutoFillInput.IsChecked = true;
+        UpdateShuffleStatus();
+        ConnectionStatus = "Preview · sample MPD library";
+        Message = "Library shuffle keeps 20 tracks in the queue";
+        TrackTitle = "Midnight Train";
+        TrackSubtitle = "Lena Vale  ·  Afterglow";
+        ComposerText = "Composed by Lena Vale";
+        FilePathText = "Lena Vale/Afterglow/01 Midnight Train.flac";
+        BitrateText = "320 kbit/s";
+        PlayPauseIcon = "⏸";
+        TrackDuration = 236;
+        ElapsedSeconds = 82;
+        ElapsedText = "1:22";
+        DurationText = "3:56";
+        Volume = 42;
+        RandomInput.IsChecked = false;
+        RepeatInput.IsChecked = false;
+        ConsumeInput.IsChecked = true;
+
+        var examples = new (string Title, string Artist, string Album, string Composer, int Duration)[]
+        {
+            ("Midnight Train", "Lena Vale", "Afterglow", "Lena Vale", 236),
+            ("Blue Hour", "The North Lines", "Open Skies", "", 208),
+            ("Paper Lanterns", "Mira Sol", "Small Hours", "Mira Sol", 252),
+            ("Nocturne in Amber", "Arden Quartet", "Night Studies", "Elias Arden", 293),
+            ("Homeward", "The North Lines", "Open Skies", "", 228),
+            ("Glass River", "Mira Sol", "Small Hours", "Mira Sol", 201),
+            ("Morning in June", "Lena Vale", "Afterglow", "Lena Vale", 247),
+            ("Quiet Signals", "Arden Quartet", "Night Studies", "Elias Arden", 264),
+            ("Silver Coast", "The North Lines", "Open Skies", "", 229),
+            ("Last Light", "Mira Sol", "Small Hours", "Mira Sol", 218),
+            ("Winding Road", "Lena Vale", "Afterglow", "Lena Vale", 233),
+            ("Cloud Atlas", "Arden Quartet", "Night Studies", "Elias Arden", 278)
+        };
+        for (var i = 0; i < examples.Length; i++)
+        {
+            var item = examples[i];
+            var song = new MpdSong($"{item.Artist}/{item.Album}/{i + 1:00} {item.Title}.flac",
+                item.Title, item.Artist, item.Album, item.Composer, i + 100, i, item.Duration);
+            Queue.Add(song);
+            BrowseSongs.Add(song);
+            if (item.Title.Contains('i', StringComparison.OrdinalIgnoreCase)) SearchResults.Add(song);
+        }
+        QueueHeading = $"Queue · {Queue.Count} tracks";
+        QueueInput.SelectedItem = Queue[0];
+        Folders.Add(new MpdEntry("directory", "Classical", null));
+        Folders.Add(new MpdEntry("directory", "Jazz", null));
+        Folders.Add(new MpdEntry("directory", "Indie", null));
+        Folders.Add(new MpdEntry("directory", "Electronic", null));
+        Playlists.Add(new MpdEntry("playlist", "Evening Mix", null));
+        Playlists.Add(new MpdEntry("playlist", "Favorites", null));
+        SearchInput.Text = "i";
+        SearchHeading = $"{SearchResults.Count} results";
+    }
+    private async Task RenderDemoScreenshotsAsync(string directory)
+    {
+        try
+        {
+            Directory.CreateDirectory(directory);
+            foreach (var (page, name) in new[] { (0, "queue.png"), (1, "library.png"), (2, "search.png"), (3, "settings.png") })
+            {
+                PageInput.SelectedIndex = page;
+                await Task.Delay(300);
+                using var bitmap = new RenderTargetBitmap(
+                    new PixelSize((int)Bounds.Width, (int)Bounds.Height), new Vector(96, 96));
+                bitmap.Render(this);
+                bitmap.Save(Path.Combine(directory, name), PngBitmapEncoderOptions.Default);
+                Console.WriteLine($"Rendered {name}");
+            }
+        }
+        catch (Exception error) { Console.Error.WriteLine(error); }
+        finally
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                desktop.Shutdown();
+        }
+    }
     private static string Clock(double seconds) => $"{(int)seconds / 60}:{(int)seconds % 60:00}";
     private static void Replace<T>(ObservableCollection<T> collection, IEnumerable<T> items)
     {
