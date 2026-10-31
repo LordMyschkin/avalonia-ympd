@@ -22,10 +22,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private int currentSongId = int.MinValue;
     private string browserPath = "";
     private MpdStatus? currentStatus;
-    private static readonly DataFormat<MpdSong> QueueSongFormat =
-        DataFormat.CreateInProcessFormat<MpdSong>("modern-ympd-queue-song");
-    private PointerPressedEventArgs? dragPress;
     private MpdSong? dragSong;
+    private IPointer? dragPointer;
+    private Border? dragSource;
+    private Border? dropTarget;
+    private bool draggingQueueSong;
+    private bool dropAfter;
     private Point dragStart;
 
     private TextBox HostInput => this.FindControl<TextBox>("HostBox")!;
@@ -233,65 +235,57 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if (sender is not Border { DataContext: MpdSong song } ||
             !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed ||
             e.Source is Visual visual && visual.FindAncestorOfType<Button>(true) is not null) return;
-        dragPress = e;
+        ClearQueueDrag();
         dragSong = song;
+        dragPointer = e.Pointer;
+        dragSource = (Border)sender;
         dragStart = e.GetPosition(QueueInput);
     }
-    private async void Queue_PointerMoved(object? sender, PointerEventArgs e)
+    // Reorder within the list; native macOS drag sessions can abort before a drop reaches Avalonia.
+    private void Queue_PointerMoved(object? sender, PointerEventArgs e)
     {
-        if (dragPress is null || dragSong is null) return;
+        if (dragSong is null || e.Pointer != dragPointer) return;
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
-            dragPress = null;
-            dragSong = null;
+            ClearQueueDrag();
             return;
         }
-        var delta = e.GetPosition(QueueInput) - dragStart;
-        if (delta.X * delta.X + delta.Y * delta.Y < 36) return;
-        var press = dragPress;
-        var song = dragSong;
-        dragPress = null;
-        dragSong = null;
-        var data = new DataTransfer();
-        data.Add(DataTransferItem.Create(QueueSongFormat, song));
-        await DragDrop.DoDragDropAsync(press, data, DragDropEffects.Move);
-    }
-    private void Queue_PointerReleased(object? sender, PointerReleasedEventArgs e)
-    {
-        dragPress = null;
-        dragSong = null;
-    }
-    private static void ClearQueueDropMark(Border border)
-    {
-        border.Classes.Remove("queue-drop-before");
-        border.Classes.Remove("queue-drop-after");
-    }
-    private void Queue_DragOver(object? sender, DragEventArgs e)
-    {
-        if (sender is not Border border) return;
-        ClearQueueDropMark(border);
-        var source = e.DataTransfer.TryGetValue(QueueSongFormat);
-        if (source is null || border.DataContext is not MpdSong target || source.Id == target.Id)
+        var point = e.GetPosition(QueueInput);
+        if (!draggingQueueSong)
         {
-            e.DragEffects = DragDropEffects.None;
-            return;
+            var delta = point - dragStart;
+            if (delta.X * delta.X + delta.Y * delta.Y < 36) return;
+            draggingQueueSong = true;
+            dragSource?.Classes.Add("queue-dragging");
+            e.Pointer.Capture(QueueInput);
         }
-        e.DragEffects = DragDropEffects.Move;
-        border.Classes.Add(e.GetPosition(border).Y < border.Bounds.Height / 2
-            ? "queue-drop-before" : "queue-drop-after");
+        SetQueueDropTarget(FindQueueRow(point), point);
+        e.Handled = true;
     }
-    private void Queue_DragLeave(object? sender, DragEventArgs e)
+    private Border? FindQueueRow(Point point)
     {
-        if (sender is Border border) ClearQueueDropMark(border);
+        if (QueueInput.InputHitTest(point) is not Visual visual) return null;
+        return visual.GetVisualAncestors().Prepend(visual).OfType<Border>()
+            .FirstOrDefault(border => border.Classes.Contains("queue-row"));
     }
-    private async void Queue_Drop(object? sender, DragEventArgs e)
+    private void SetQueueDropTarget(Border? target, Point point)
     {
-        if (sender is not Border border) return;
-        ClearQueueDropMark(border);
-        var source = e.DataTransfer.TryGetValue(QueueSongFormat);
-        if (source is null || border.DataContext is not MpdSong target || source.Id == target.Id) return;
-        var insertAfter = e.GetPosition(border).Y >= border.Bounds.Height / 2;
-        e.DragEffects = DragDropEffects.Move;
+        if (dropTarget is not null) ClearQueueDropMark(dropTarget);
+        dropTarget = target?.DataContext is MpdSong song && song.Id != dragSong?.Id ? target : null;
+        if (dropTarget is null) return;
+        var top = dropTarget.TranslatePoint(new Point(0, 0), QueueInput)?.Y ?? 0;
+        dropAfter = point.Y >= top + dropTarget.Bounds.Height / 2;
+        dropTarget.Classes.Add(dropAfter ? "queue-drop-after" : "queue-drop-before");
+    }
+    private async void Queue_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (e.Pointer != dragPointer) return;
+        var source = draggingQueueSong ? dragSong : null;
+        var target = dropTarget?.DataContext as MpdSong;
+        var insertAfter = dropAfter;
+        ClearQueueDrag();
+        if (source is null || target is null) return;
+        e.Handled = true;
         try
         {
             var queue = (await client.GetQueueAsync()).ToList();
@@ -305,6 +299,27 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 await ActAsync(() => client.MoveIdAsync(source.Id, destination), $"Moved {source.DisplayTitle}");
         }
         catch (Exception error) { Message = error.Message; }
+    }
+    private void Queue_PointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+    {
+        if (e.Pointer == dragPointer && e.Pointer.Captured != QueueInput) ClearQueueDrag();
+    }
+    private void ClearQueueDrag()
+    {
+        if (dropTarget is not null) ClearQueueDropMark(dropTarget);
+        dragSource?.Classes.Remove("queue-dragging");
+        var pointer = dragPointer;
+        dropTarget = null;
+        dragSource = null;
+        dragSong = null;
+        dragPointer = null;
+        draggingQueueSong = false;
+        if (pointer?.Captured == QueueInput) pointer.Capture(null);
+    }
+    private static void ClearQueueDropMark(Border border)
+    {
+        border.Classes.Remove("queue-drop-before");
+        border.Classes.Remove("queue-drop-after");
     }
     private async void ClearQueue_Click(object? sender, RoutedEventArgs e)
     {
