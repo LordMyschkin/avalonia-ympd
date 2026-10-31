@@ -221,6 +221,29 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if ((sender as Button)?.DataContext is MpdSong song)
             await ActAsync(() => client.DeleteIdAsync(song.Id), $"Removed {song.DisplayTitle}");
     }
+    private async Task MoveQueueSongAsync(object? sender, int direction)
+    {
+        if ((sender as Button)?.DataContext is not MpdSong song) return;
+        try
+        {
+            var queue = await client.GetQueueAsync();
+            var position = queue.ToList().FindIndex(item => item.Id == song.Id);
+            var target = position + direction;
+            if (position < 0) throw new IOException("The track is no longer in the queue.");
+            if (target < 0 || target >= queue.Count)
+            {
+                Message = direction < 0 ? "Already at the top of the queue" : "Already at the bottom of the queue";
+                return;
+            }
+            await ActAsync(() => client.MoveIdAsync(song.Id, target),
+                $"Moved {song.DisplayTitle} {(direction < 0 ? "up" : "down")}");
+        }
+        catch (Exception error) { Message = error.Message; }
+    }
+    private async void QueueUp_Click(object? sender, RoutedEventArgs e) =>
+        await MoveQueueSongAsync(sender, -1);
+    private async void QueueDown_Click(object? sender, RoutedEventArgs e) =>
+        await MoveQueueSongAsync(sender, 1);
     private async void ClearQueue_Click(object? sender, RoutedEventArgs e)
     {
         settings.AutoFillEnabled = false;

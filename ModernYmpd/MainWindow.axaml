@@ -118,7 +118,7 @@
                 <ListBox.ItemTemplate>
                   <DataTemplate>
                     <Border Background="#212C3A" CornerRadius="9" Padding="11,7" Margin="0,2">
-                      <Grid ColumnDefinitions="35,*,Auto,Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
+                      <Grid ColumnDefinitions="35,*,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
                         <TextBlock Text="{Binding PositionText}" Foreground="#99A8B6" VerticalAlignment="Center" />
                         <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
                           <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1" />
@@ -127,8 +127,10 @@
                         </StackPanel>
                         <TextBlock Grid.Column="2" Text="{Binding DurationText}" Foreground="#99A8B6"
                                    FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
-                        <Button Grid.Column="3" Content="Play" Click="QueuePlay_Click" />
-                        <Button Grid.Column="4" Content="×" Click="QueueRemove_Click" ToolTip.Tip="Remove from queue" />
+                        <Button Grid.Column="3" Content="↑" Click="QueueUp_Click" ToolTip.Tip="Move up" />
+                        <Button Grid.Column="4" Content="↓" Click="QueueDown_Click" ToolTip.Tip="Move down" />
+                        <Button Grid.Column="5" Content="Play" Click="QueuePlay_Click" />
+                        <Button Grid.Column="6" Content="×" Click="QueueRemove_Click" ToolTip.Tip="Remove from queue" />
                       </Grid>
                     </Border>
                   </DataTemplate>

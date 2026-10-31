@@ -123,6 +123,8 @@ public sealed class MpdClient(AppSettings settings)
     public async Task NextAsync(CancellationToken token = default) => await SendAsync("next", token);
     public async Task PreviousAsync(CancellationToken token = default) => await SendAsync("previous", token);
     public async Task DeleteIdAsync(int id, CancellationToken token = default) => await SendAsync($"deleteid {id}", token);
+    public async Task MoveIdAsync(int id, int position, CancellationToken token = default) =>
+        await SendAsync($"moveid {id} {position}", token);
     public async Task ClearAsync(CancellationToken token = default) => await SendAsync("clear", token);
     public async Task SetVolumeAsync(int volume, CancellationToken token = default) =>
         await SendAsync($"setvol {Math.Clamp(volume, 0, 100)}", token);
