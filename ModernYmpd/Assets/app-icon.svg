@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="surface" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#344356"/>
+      <stop offset="0.45" stop-color="#202d3b"/>
+      <stop offset="1" stop-color="#101923"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.56" cy="0.43" r="0.66">
+      <stop offset="0" stop-color="#435f45" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#18262b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="note" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#e2ffa9"/>
+      <stop offset="0.58" stop-color="#bcf478"/>
+      <stop offset="1" stop-color="#91d64a"/>
+    </linearGradient>
+    <filter id="shadow" x="-0.3" y="-0.3" width="1.6" height="1.7">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="23"/>
+      <feOffset dx="0" dy="22"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="40" y="40" width="944" height="944" rx="218" fill="url(#surface)"/>
+  <rect x="40" y="40" width="944" height="944" rx="218" fill="url(#glow)"/>
+  <rect x="43" y="43" width="938" height="938" rx="215" fill="none" stroke="#80929b" stroke-opacity="0.42" stroke-width="6"/>
+  <path d="M178 165 Q230 93 345 93 H689 Q846 93 931 233" fill="none" stroke="#a8b9c5" stroke-opacity="0.12" stroke-width="14"/>
+  <g filter="url(#shadow)" fill="url(#note)">
+    <path d="M500 297 Q500 274 522 269 L755 219 Q787 212 787 246 V331 L550 382 V641 H500 Z"/>
+    <path d="M737 327 H787 V575 H737 Z"/>
+    <ellipse cx="446" cy="662" rx="95" ry="68" transform="rotate(-22 446 662)"/>
+    <ellipse cx="683" cy="596" rx="95" ry="68" transform="rotate(-22 683 596)"/>
+  </g>
+  <path d="M245 797 H778" stroke="#8196a4" stroke-opacity="0.16" stroke-width="12" stroke-linecap="round"/>
+</svg>

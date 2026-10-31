@@ -36,8 +36,8 @@ open "dist/Modern YMPD.app"
 ```
 
 The bundle contains its .NET runtime. It is built for the Mac's current CPU
-architecture and can be moved to `Applications`. The build output under
-`dist` is ignored by Git.
+architecture, includes the app icon, and can be moved to `Applications`. The
+build output under `dist` is ignored by Git.
 
 The default MPD address is `127.0.0.1:6600`. Connection and shuffle settings
 are saved in the user's application-data folder under

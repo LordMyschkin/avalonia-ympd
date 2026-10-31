@@ -14,11 +14,12 @@ esac
 
 publish="$dist/publish-$runtime"
 app="$dist/Modern YMPD.app"
-mkdir -p "$publish" "$app/Contents/MacOS"
+mkdir -p "$publish" "$app/Contents/MacOS" "$app/Contents/Resources"
 "$dotnet" restore "$project" -r "$runtime" --source https://api.nuget.org/v3/index.json
 "$dotnet" publish "$project" -c Release -r "$runtime" --self-contained true \
     --no-restore -o "$publish" -p:UseAppHost=true
 cp -R "$publish/." "$app/Contents/MacOS/"
+cp "$repo/ModernYmpd/Assets/app.icns" "$app/Contents/Resources/app.icns"
 cat > "$app/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -30,6 +31,7 @@ cat > "$app/Contents/Info.plist" <<PLIST
   <key>CFBundleShortVersionString</key><string>0.1.0</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleExecutable</key><string>ModernYmpd</string>
+  <key>CFBundleIconFile</key><string>app.icns</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.music</string>
   <key>NSHighResolutionCapable</key><true/>
 </dict></plist>
