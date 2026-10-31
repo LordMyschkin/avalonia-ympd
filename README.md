@@ -5,7 +5,7 @@ the ympd web service is not required.
 
 ## Features
 
-- Queue with up/down reordering, library folders, stored playlists, and search
+- Queue with drag-and-drop reordering, library folders, stored playlists, and search
 - Previous, stop, play/pause, next, seek, volume, MPD random, repeat, and consume
 - Composer, bitrate, and optional MPD file path in Now Playing
 - Add a search or library result next, add it to the end, or play it immediately

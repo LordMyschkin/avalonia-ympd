@@ -2,10 +2,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 
 namespace ModernYmpd;
 
@@ -20,6 +22,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private int currentSongId = int.MinValue;
     private string browserPath = "";
     private MpdStatus? currentStatus;
+    private static readonly DataFormat<MpdSong> QueueSongFormat =
+        DataFormat.CreateInProcessFormat<MpdSong>("modern-ympd-queue-song");
+    private PointerPressedEventArgs? dragPress;
+    private MpdSong? dragSong;
+    private Point dragStart;
 
     private TextBox HostInput => this.FindControl<TextBox>("HostBox")!;
     private TextBox PortInput => this.FindControl<TextBox>("PortBox")!;
@@ -221,29 +228,84 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if ((sender as Button)?.DataContext is MpdSong song)
             await ActAsync(() => client.DeleteIdAsync(song.Id), $"Removed {song.DisplayTitle}");
     }
-    private async Task MoveQueueSongAsync(object? sender, int direction)
+    private void Queue_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if ((sender as Button)?.DataContext is not MpdSong song) return;
+        if (sender is not Border { DataContext: MpdSong song } ||
+            !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed ||
+            e.Source is Visual visual && visual.FindAncestorOfType<Button>(true) is not null) return;
+        dragPress = e;
+        dragSong = song;
+        dragStart = e.GetPosition(QueueInput);
+    }
+    private async void Queue_PointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (dragPress is null || dragSong is null) return;
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            dragPress = null;
+            dragSong = null;
+            return;
+        }
+        var delta = e.GetPosition(QueueInput) - dragStart;
+        if (delta.X * delta.X + delta.Y * delta.Y < 36) return;
+        var press = dragPress;
+        var song = dragSong;
+        dragPress = null;
+        dragSong = null;
+        var data = new DataTransfer();
+        data.Add(DataTransferItem.Create(QueueSongFormat, song));
+        await DragDrop.DoDragDropAsync(press, data, DragDropEffects.Move);
+    }
+    private void Queue_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        dragPress = null;
+        dragSong = null;
+    }
+    private static void ClearQueueDropMark(Border border)
+    {
+        border.Classes.Remove("queue-drop-before");
+        border.Classes.Remove("queue-drop-after");
+    }
+    private void Queue_DragOver(object? sender, DragEventArgs e)
+    {
+        if (sender is not Border border) return;
+        ClearQueueDropMark(border);
+        var source = e.DataTransfer.TryGetValue(QueueSongFormat);
+        if (source is null || border.DataContext is not MpdSong target || source.Id == target.Id)
+        {
+            e.DragEffects = DragDropEffects.None;
+            return;
+        }
+        e.DragEffects = DragDropEffects.Move;
+        border.Classes.Add(e.GetPosition(border).Y < border.Bounds.Height / 2
+            ? "queue-drop-before" : "queue-drop-after");
+    }
+    private void Queue_DragLeave(object? sender, DragEventArgs e)
+    {
+        if (sender is Border border) ClearQueueDropMark(border);
+    }
+    private async void Queue_Drop(object? sender, DragEventArgs e)
+    {
+        if (sender is not Border border) return;
+        ClearQueueDropMark(border);
+        var source = e.DataTransfer.TryGetValue(QueueSongFormat);
+        if (source is null || border.DataContext is not MpdSong target || source.Id == target.Id) return;
+        var insertAfter = e.GetPosition(border).Y >= border.Bounds.Height / 2;
+        e.DragEffects = DragDropEffects.Move;
         try
         {
-            var queue = await client.GetQueueAsync();
-            var position = queue.ToList().FindIndex(item => item.Id == song.Id);
-            var target = position + direction;
-            if (position < 0) throw new IOException("The track is no longer in the queue.");
-            if (target < 0 || target >= queue.Count)
-            {
-                Message = direction < 0 ? "Already at the top of the queue" : "Already at the bottom of the queue";
-                return;
-            }
-            await ActAsync(() => client.MoveIdAsync(song.Id, target),
-                $"Moved {song.DisplayTitle} {(direction < 0 ? "up" : "down")}");
+            var queue = (await client.GetQueueAsync()).ToList();
+            var sourceIndex = queue.FindIndex(song => song.Id == source.Id);
+            var targetIndex = queue.FindIndex(song => song.Id == target.Id);
+            if (sourceIndex < 0 || targetIndex < 0)
+                throw new IOException("The queue changed while dragging. Please try again.");
+            var insertIndex = targetIndex + (insertAfter ? 1 : 0);
+            var destination = insertIndex > sourceIndex ? insertIndex - 1 : insertIndex;
+            if (destination != sourceIndex)
+                await ActAsync(() => client.MoveIdAsync(source.Id, destination), $"Moved {source.DisplayTitle}");
         }
         catch (Exception error) { Message = error.Message; }
     }
-    private async void QueueUp_Click(object? sender, RoutedEventArgs e) =>
-        await MoveQueueSongAsync(sender, -1);
-    private async void QueueDown_Click(object? sender, RoutedEventArgs e) =>
-        await MoveQueueSongAsync(sender, 1);
     private async void ClearQueue_Click(object? sender, RoutedEventArgs e)
     {
         settings.AutoFillEnabled = false;

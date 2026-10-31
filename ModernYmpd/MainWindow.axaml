@@ -38,6 +38,14 @@
       <Setter Property="Margin" Value="0,2" />
       <Setter Property="CornerRadius" Value="9" />
     </Style>
+    <Style Selector="Border.queue-drop-before">
+      <Setter Property="BorderBrush" Value="#B8F36B" />
+      <Setter Property="BorderThickness" Value="0,3,0,0" />
+    </Style>
+    <Style Selector="Border.queue-drop-after">
+      <Setter Property="BorderBrush" Value="#B8F36B" />
+      <Setter Property="BorderThickness" Value="0,0,0,3" />
+    </Style>
     <Style Selector="TabControl">
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderThickness" Value="0" />
@@ -117,9 +125,16 @@
               <ListBox x:Name="QueueList" Grid.Row="1" ItemsSource="{Binding Queue}">
                 <ListBox.ItemTemplate>
                   <DataTemplate>
-                    <Border Background="#212C3A" CornerRadius="9" Padding="11,7" Margin="0,2">
-                      <Grid ColumnDefinitions="35,*,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding PositionText}" Foreground="#99A8B6" VerticalAlignment="Center" />
+                    <Border Background="#212C3A" CornerRadius="9" Padding="11,7" Margin="0,2"
+                            DragDrop.AllowDrop="True" DragDrop.DragOver="Queue_DragOver"
+                            DragDrop.DragLeave="Queue_DragLeave" DragDrop.Drop="Queue_Drop"
+                            PointerPressed="Queue_PointerPressed" PointerMoved="Queue_PointerMoved"
+                            PointerReleased="Queue_PointerReleased">
+                      <Grid ColumnDefinitions="50,*,Auto,Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                          <TextBlock Text="⠿" Foreground="#B8F36B" ToolTip.Tip="Drag to reorder" />
+                          <TextBlock Text="{Binding PositionText}" Foreground="#99A8B6" />
+                        </StackPanel>
                         <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
                           <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1" />
                           <TextBlock Text="{Binding DisplayArtist}" FontSize="11" Foreground="#99A8B6"
@@ -127,10 +142,8 @@
                         </StackPanel>
                         <TextBlock Grid.Column="2" Text="{Binding DurationText}" Foreground="#99A8B6"
                                    FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
-                        <Button Grid.Column="3" Content="↑" Click="QueueUp_Click" ToolTip.Tip="Move up" />
-                        <Button Grid.Column="4" Content="↓" Click="QueueDown_Click" ToolTip.Tip="Move down" />
-                        <Button Grid.Column="5" Content="Play" Click="QueuePlay_Click" />
-                        <Button Grid.Column="6" Content="×" Click="QueueRemove_Click" ToolTip.Tip="Remove from queue" />
+                        <Button Grid.Column="3" Content="Play" Click="QueuePlay_Click" />
+                        <Button Grid.Column="4" Content="×" Click="QueueRemove_Click" ToolTip.Tip="Remove from queue" />
                       </Grid>
                     </Border>
                   </DataTemplate>
