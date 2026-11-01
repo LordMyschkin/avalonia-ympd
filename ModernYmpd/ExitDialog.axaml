@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ModernYmpd.ExitDialog"
-        Title="Quit Modern YMPD"
+        Title="Quit A-mpd"
         Width="510" Height="238" MinWidth="510" MinHeight="238"
         CanResize="False" ShowInTaskbar="False"
         WindowStartupLocation="CenterOwner"
@@ -16,7 +16,7 @@
   <Grid RowDefinitions="Auto,*,Auto" Margin="24" RowSpacing="14">
     <TextBlock Text="Pause MPD before quitting?" FontSize="20" FontWeight="Bold" />
     <StackPanel Grid.Row="1" Spacing="8">
-      <TextBlock Text="Modern YMPD will close and stop filling the queue. MPD keeps its current playback and queue unless you pause it."
+      <TextBlock Text="A-mpd will close and stop filling the queue. MPD keeps its current playback and queue unless you pause it."
                  TextWrapping="Wrap" />
       <TextBlock x:Name="ErrorText" Foreground="#FFAA9A" TextWrapping="Wrap" />
     </StackPanel>

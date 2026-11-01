@@ -1,7 +1,8 @@
-# avalonia-ympd
+# A-mpd
 
 An independent Avalonia desktop client for MPD. It connects directly to MPD;
-the ympd web service is not required.
+the ympd web service is not required. It evolved from the ympd web player and
+the idea of combining its controls with ashuffle-style queue filling.
 
 ## Features
 
@@ -15,16 +16,21 @@ the ympd web service is not required.
 - Composer, bitrate, and optional MPD file path in Now Playing
 - Add a search or library result next, add it to the end, or play it immediately
 - Keep the queue filled to a chosen size with random library songs
+- Fill the queue once to 200 random library tracks with the sidebar button
 - Closing the main window quits the app and stops automatic queue filling;
   Settings can enable an optional prompt to pause MPD before quitting
 - On macOS, use the system menu bar's **View** menu for Queue, Library,
-  Search, and Settings, and **Playback** for playback controls
+  Search, and Settings, and **Playback** for playback controls. The About
+  dialog opens in one click from the information button in the window header
+  or with Command-I.
 
 The random filler uses MPD's `searchcount` and `search ... window` commands. It
 chooses random library positions, then avoids songs already queued and the last
 50 selections when possible. It has no separate music database or library cache.
 It checks the queue every five seconds while the app is running. When it fills
 an empty, stopped queue, it starts playback.
+The 200-track button is a one-time fill and does not change the target in
+Settings or start playback by itself.
 The pause-on-exit prompt is off by default. Quitting leaves MPD's playback and
 queue untouched unless you choose to pause in that prompt.
 
@@ -32,7 +38,7 @@ queue untouched unless you choose to pause in that prompt.
 
 Get the [latest release](https://github.com/LordMyschkin/avalonia-ympd/releases/latest):
 
-- **macOS Apple Silicon:** download the DMG and drag `Avalonia YMPD.app` to Applications.
+- **macOS Apple Silicon:** download the DMG and drag `A-mpd.app` to Applications.
 - **Windows x64:** download and run the single-file EXE.
 
 Both downloads include the .NET runtime. The macOS app is ad hoc signed; the
@@ -66,7 +72,7 @@ These images use a sample library with invented song metadata.
 
 ### About
 
-![About modern ympd](docs/screenshots/about.png)
+![About A-mpd](docs/screenshots/about.png)
 
 ### Optional exit prompt
 
@@ -85,7 +91,7 @@ On macOS, build a self-contained `.app` bundle with:
 
 ```sh
 ./build-macos-app.sh
-open "dist/Avalonia YMPD.app"
+open "dist/A-mpd.app"
 ```
 
 The macOS media-key bridge is compiled into this `.app` by the build script.
@@ -94,7 +100,7 @@ The plain `dotnet run` command does not include that native bridge.
 On macOS, `./build-macos-dmg.sh` packages this app in a DMG.
 
 To cross-build the self-contained Windows x64 EXE from macOS or Linux, run
-`./build-windows-exe.sh`. The result is `dist/Avalonia-YMPD-win-x64.exe`.
+`./build-windows-exe.sh`. The result is `dist/A-mpd-win-x64.exe`.
 
 To regenerate the sample screenshots, run
 `dotnet run --project ModernYmpd/ModernYmpd.csproj -- --render-screenshots docs/screenshots`.

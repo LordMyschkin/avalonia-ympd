@@ -15,15 +15,19 @@ public sealed class AppSettings
 
     public static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "a-mpd", "settings.json");
+    private static string LegacyFilePath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "modern-ympd", "settings.json");
 
     public static AppSettings Load()
     {
         try
         {
-            if (File.Exists(FilePath))
+            var path = File.Exists(FilePath) ? FilePath : LegacyFilePath;
+            if (File.Exists(path))
             {
-                var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath));
+                var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path));
                 if (settings is not null)
                 {
                     settings.Port = Math.Clamp(settings.Port, 1, 65535);

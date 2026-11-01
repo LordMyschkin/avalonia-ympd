@@ -12,5 +12,5 @@ dotnet="${DOTNET:-dotnet}"
     --no-restore -o "$dist/publish-win-x64" \
     -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true \
     -p:EnableCompressionInSingleFile=true -p:DebugType=none -p:DebugSymbols=false
-cp "$dist/publish-win-x64/ModernYmpd.exe" "$dist/Avalonia-YMPD-win-x64.exe"
-echo "Built: $dist/Avalonia-YMPD-win-x64.exe"
+cp "$dist/publish-win-x64/ModernYmpd.exe" "$dist/A-mpd-win-x64.exe"
+echo "Built: $dist/A-mpd-win-x64.exe"

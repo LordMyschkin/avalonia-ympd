@@ -42,7 +42,7 @@ internal sealed class MacMediaKeys : IDisposable
             ympd_media_start(NativeCallback);
             // Publish an idle player immediately so Play can reach MPD before
             // the first track has ever been started in this app session.
-            ympd_media_update("modern ympd", "MPD", null, null, 0, 0, 2);
+            ympd_media_update("A-mpd", "MPD", null, null, 0, 0, 2);
             return instance;
         }
         catch (Exception error)

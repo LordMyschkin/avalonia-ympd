@@ -7,8 +7,9 @@ dist="$repo/dist"
 "$repo/build-macos-app.sh"
 
 staging="$dist/dmg-staging"
+rm -rf "$staging"
 mkdir -p "$staging"
-ditto "$dist/Avalonia YMPD.app" "$staging/Avalonia YMPD.app"
+ditto "$dist/A-mpd.app" "$staging/A-mpd.app"
 if [ ! -e "$staging/Applications" ]; then
     ln -s /Applications "$staging/Applications"
 fi
@@ -18,7 +19,7 @@ case "$(uname -m)" in
     x86_64) architecture=x64 ;;
     *) echo "Unsupported macOS architecture." >&2; exit 1 ;;
 esac
-image="$dist/Avalonia-YMPD-macos-$architecture.dmg"
-hdiutil create -volname 'Avalonia YMPD' -srcfolder "$staging" -ov -format UDZO "$image"
+image="$dist/A-mpd-macos-$architecture.dmg"
+hdiutil create -volname 'A-mpd' -srcfolder "$staging" -ov -format UDZO "$image"
 hdiutil verify "$image"
 echo "Built: $image"

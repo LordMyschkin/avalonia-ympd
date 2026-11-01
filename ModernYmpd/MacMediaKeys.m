@@ -30,7 +30,7 @@ void ympd_media_start(YmpdMediaCommandCallback handler) {
 void ympd_media_update(const char *title, const char *artist, const char *album,
                        const char *composer, double duration, double elapsed, int state) {
     MPNowPlayingInfoCenter *center = [MPNowPlayingInfoCenter defaultCenter];
-    if (title == NULL || title[0] == '\0') title = "modern ympd";
+    if (title == NULL || title[0] == '\0') title = "A-mpd";
 
     NSMutableDictionary *info = [NSMutableDictionary dictionary];
     info[MPMediaItemPropertyTitle] = [NSString stringWithUTF8String:title];

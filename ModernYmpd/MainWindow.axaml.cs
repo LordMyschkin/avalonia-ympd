@@ -77,8 +77,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private string bitrateText = "";
     public string BitrateText { get => bitrateText; private set { Set(ref bitrateText, value); Notify(nameof(HasBitrate)); } }
     public bool HasBitrate => !string.IsNullOrEmpty(BitrateText);
-    private string playPauseIcon = "▶";
-    public string PlayPauseIcon { get => playPauseIcon; private set => Set(ref playPauseIcon, value); }
+    private bool isPlaying;
+    public bool IsPlaying
+    {
+        get => isPlaying;
+        private set { Set(ref isPlaying, value); Notify(nameof(IsNotPlaying)); }
+    }
+    public bool IsNotPlaying => !IsPlaying;
     private string elapsedText = "0:00";
     public string ElapsedText { get => elapsedText; private set => Set(ref elapsedText, value); }
     private string durationText = "0:00";
@@ -204,21 +209,28 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         var menu = new NativeMenu();
         menu.Items.Add(view);
         menu.Items.Add(playback);
-        var aboutMenu = new NativeMenuItem("About modern ympd") { Menu = new NativeMenu() };
-        var about = new NativeMenuItem("About modern ympd…");
-        about.Click += async (_, _) =>
+        var aboutMenu = new NativeMenuItem("About A-mpd") { Menu = new NativeMenu() };
+        var about = new NativeMenuItem("About A-mpd…")
         {
-            try { await new AboutDialog().ShowDialog(this); }
-            catch (Exception error)
-            {
-                CrashLog.Write(error, "About dialog");
-                Message = error.Message;
-            }
+            Gesture = new KeyGesture(Key.I, KeyModifiers.Meta)
         };
+        about.Click += async (_, _) => await ShowAboutAsync();
         aboutMenu.Menu.Items.Add(about);
         menu.Items.Add(aboutMenu);
         NativeMenu.SetMenu(this, menu);
     }
+
+    private async Task ShowAboutAsync()
+    {
+        try { await new AboutDialog().ShowDialog(this); }
+        catch (Exception error)
+        {
+            CrashLog.Write(error, "About dialog");
+            if (!isShuttingDown) Message = error.Message;
+        }
+    }
+
+    private async void About_Click(object? sender, RoutedEventArgs e) => await ShowAboutAsync();
     private void PopulateDemo()
     {
         settings.ShowFilePath = true;
@@ -233,7 +245,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         ComposerText = "Composed by Lena Vale";
         FilePathText = "Lena Vale/Afterglow/01 Midnight Train.flac";
         BitrateText = "320 kbit/s";
-        PlayPauseIcon = "⏸";
+        IsPlaying = true;
         TrackDuration = 236;
         ElapsedSeconds = 82;
         ElapsedText = "1:22";
@@ -352,7 +364,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             if (isShuttingDown) return;
             currentStatus = status;
             ConnectionStatus = $"Connected · {settings.Host}:{settings.Port}";
-            PlayPauseIcon = status.State == "play" ? "⏸" : "▶";
+            IsPlaying = status.State == "play";
             BitrateText = status.Bitrate > 0 && status.State != "stop" ? $"{status.Bitrate} kbit/s" : "";
             Volume = status.Volume;
             RandomInput.IsChecked = status.Random;
@@ -611,6 +623,24 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         await ActAsync(() => client.ClearAsync(), "Queue cleared; library shuffle switched off");
     }
 
+    private async void Fill200_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || isShuttingDown) return;
+        button.IsEnabled = false;
+        Message = "Filling queue to 200 random tracks…";
+        try
+        {
+            var added = await shuffle.FillToAsync(200);
+            if (isShuttingDown) return;
+            Message = added == 0 ? "Queue already has at least 200 tracks."
+                : $"Added {added} random track{(added == 1 ? "" : "s")} to the queue.";
+            await RefreshAsync();
+        }
+        catch (OperationCanceledException) when (isShuttingDown) { }
+        catch (Exception error) { if (!isShuttingDown) Message = error.Message; }
+        finally { if (!isShuttingDown) button.IsEnabled = true; }
+    }
+
     private async void BrowseFolder_Click(object? sender, RoutedEventArgs e)
     {
         if ((sender as Button)?.DataContext is MpdEntry entry) await BrowseAsync(entry.Path);
@@ -700,5 +730,4 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         try { Message = $"MPD library: {await client.GetLibraryCountAsync()} tracks"; }
         catch (Exception error) { Message = error.Message; }
     }
-    private void OpenSettings_Click(object? sender, RoutedEventArgs e) => PageInput.SelectedIndex = 3;
 }

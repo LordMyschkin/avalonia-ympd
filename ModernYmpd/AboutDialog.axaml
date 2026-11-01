@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ModernYmpd.AboutDialog"
-        Title="About modern ympd"
+        Title="About A-mpd"
         Icon="avares://ModernYmpd/Assets/app.ico"
         Width="540" Height="385" MinWidth="540" MinHeight="385"
         CanResize="False" ShowInTaskbar="False"
@@ -14,7 +14,7 @@
                    HorizontalAlignment="Center" VerticalAlignment="Center" />
       </Border>
       <StackPanel Spacing="3" VerticalAlignment="Center">
-        <TextBlock Text="modern ympd" FontSize="23" FontWeight="Bold" />
+        <TextBlock Text="A-mpd" FontSize="23" FontWeight="Bold" />
         <TextBlock x:Name="VersionText" Foreground="#B8F36B" FontSize="12" />
       </StackPanel>
     </StackPanel>

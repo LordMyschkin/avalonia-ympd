@@ -3,6 +3,7 @@ namespace ModernYmpd;
 public sealed class ShuffleService(MpdClient client, AppSettings settings) : IDisposable
 {
     private readonly CancellationTokenSource cancellation = new();
+    private readonly SemaphoreSlim fillGate = new(1, 1);
     private readonly Queue<string> recent = new();
     private Task? worker;
 
@@ -16,7 +17,8 @@ public sealed class ShuffleService(MpdClient client, AppSettings settings) : IDi
         {
             try
             {
-                if (settings.AutoFillEnabled) await FillAsync(cancellation.Token);
+                if (settings.AutoFillEnabled)
+                    await FillToAsync(settings.FillTarget, true, cancellation.Token);
             }
             catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { break; }
             catch (Exception error) { StateChanged?.Invoke($"Auto fill: {error.Message}"); }
@@ -25,17 +27,23 @@ public sealed class ShuffleService(MpdClient client, AppSettings settings) : IDi
         }
     }
 
-    private async Task FillAsync(CancellationToken token)
+    public async Task<int> FillToAsync(int target, bool startPlaybackIfEmpty = false,
+        CancellationToken token = default)
+    {
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, cancellation.Token);
+        await fillGate.WaitAsync(linked.Token);
+        try { return await FillAsync(target, startPlaybackIfEmpty, linked.Token); }
+        finally { fillGate.Release(); }
+    }
+
+    private async Task<int> FillAsync(int target, bool startPlaybackIfEmpty, CancellationToken token)
     {
         var status = await client.GetStatusAsync(token);
-        var missing = settings.FillTarget - status.QueueLength;
-        if (missing <= 0) return;
+        var missing = target - status.QueueLength;
+        if (missing <= 0) return 0;
         var libraryCount = await client.GetLibraryCountAsync(token);
         if (libraryCount == 0)
-        {
-            StateChanged?.Invoke("MPD library is empty. Update the database in Settings.");
-            return;
-        }
+            throw new IOException("MPD library is empty. Update the database in Settings.");
         var queued = (await client.GetQueueAsync(token)).Select(song => song.File)
             .ToHashSet(StringComparer.Ordinal);
         var added = 0;
@@ -60,9 +68,11 @@ public sealed class ShuffleService(MpdClient client, AppSettings settings) : IDi
             if (recent.Count > 50) recent.Dequeue();
             added++;
         }
-        if (status.State == "stop" && status.QueueLength == 0 && added > 0)
+        if (startPlaybackIfEmpty && status.State == "stop" && status.QueueLength == 0 && added > 0)
             await client.PlayAsync(token);
-        StateChanged?.Invoke($"Added {added} random track{(added == 1 ? "" : "s")}.");
+        if (startPlaybackIfEmpty)
+            StateChanged?.Invoke($"Added {added} random track{(added == 1 ? "" : "s")}.");
+        return added;
     }
 
     public void Dispose()
