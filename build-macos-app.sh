@@ -14,6 +14,10 @@ esac
 
 publish="$dist/publish-$runtime"
 app="$dist/A-mpd.app"
+if pgrep -f "$app/Contents/MacOS/A-mpd" >/dev/null 2>&1; then
+    echo "Close $app before rebuilding it; replacing a running app can crash .NET." >&2
+    exit 1
+fi
 mkdir -p "$publish" "$app/Contents/MacOS" "$app/Contents/Resources"
 "$dotnet" restore "$project" -r "$runtime" --source https://api.nuget.org/v3/index.json
 "$dotnet" publish "$project" -c Release -r "$runtime" --self-contained true \
