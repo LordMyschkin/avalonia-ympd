@@ -177,6 +177,19 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         var menu = new NativeMenu();
         menu.Items.Add(view);
         menu.Items.Add(playback);
+        var aboutMenu = new NativeMenuItem("About modern ympd") { Menu = new NativeMenu() };
+        var about = new NativeMenuItem("Über modern ympd…");
+        about.Click += async (_, _) =>
+        {
+            try { await new AboutDialog().ShowDialog(this); }
+            catch (Exception error)
+            {
+                CrashLog.Write(error, "About dialog");
+                Message = error.Message;
+            }
+        };
+        aboutMenu.Menu.Items.Add(about);
+        menu.Items.Add(aboutMenu);
         NativeMenu.SetMenu(this, menu);
     }
     private void PopulateDemo()
@@ -253,6 +266,17 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 bitmap.Save(Path.Combine(directory, name), PngBitmapEncoderOptions.Default);
                 Console.WriteLine($"Rendered {name}");
             }
+            var about = new AboutDialog();
+            about.Show(this);
+            await Task.Delay(300);
+            using (var bitmap = new RenderTargetBitmap(
+                new PixelSize((int)about.Bounds.Width, (int)about.Bounds.Height), new Vector(96, 96)))
+            {
+                bitmap.Render(about);
+                bitmap.Save(Path.Combine(directory, "about.png"), PngBitmapEncoderOptions.Default);
+            }
+            about.Close();
+            Console.WriteLine("Rendered about.png");
         }
         catch (Exception error) { Console.Error.WriteLine(error); }
         finally

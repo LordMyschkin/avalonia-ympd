@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ModernYmpd.AboutDialog"
+        Title="About modern ympd"
+        Icon="avares://ModernYmpd/Assets/app.ico"
+        Width="540" Height="385" MinWidth="540" MinHeight="385"
+        CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#10151D" Foreground="#EEF2F5">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="28" RowSpacing="20">
+    <StackPanel Orientation="Horizontal" Spacing="14">
+      <Border Width="48" Height="48" CornerRadius="14" Background="#B8F36B">
+        <TextBlock Text="▶" Foreground="#172316" FontSize="21" FontWeight="Bold"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+      </Border>
+      <StackPanel Spacing="3" VerticalAlignment="Center">
+        <TextBlock Text="modern ympd" FontSize="23" FontWeight="Bold" />
+        <TextBlock x:Name="VersionText" Foreground="#B8F36B" FontSize="12" />
+      </StackPanel>
+    </StackPanel>
+
+    <StackPanel Grid.Row="1" Spacing="12">
+      <TextBlock Text="Vom Webplayer ympd zur eigenständigen Avalonia-App: entstanden aus der Idee, ympd und ashuffle in einer Oberfläche zu verbinden."
+                 TextWrapping="Wrap" />
+      <TextBlock Text="Gemeinsam mit OpenAI Codex entwickelt – ‚vibe-coded‘ und Schritt für Schritt erweitert."
+                 Foreground="#A9B7C4" TextWrapping="Wrap" />
+      <Border Background="#1A222E" BorderBrush="#303B49" BorderThickness="1"
+              CornerRadius="10" Padding="14,12">
+        <TextBlock Text="Die App steuert MPD direkt, füllt die Playlist auf Wunsch mit zufälligen Titeln aus der MPD-Bibliothek und unterstützt die macOS-Medientasten."
+                   TextWrapping="Wrap" />
+      </Border>
+    </StackPanel>
+
+    <Button Grid.Row="2" Content="Schließen" Click="Close_Click"
+            HorizontalAlignment="Right" Background="#B8F36B" Foreground="#172316"
+            FontWeight="Bold" Padding="18,9" CornerRadius="9" />
+  </Grid>
+</Window>

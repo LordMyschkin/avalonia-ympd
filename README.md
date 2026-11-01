@@ -10,6 +10,7 @@ the ympd web service is not required.
 - Previous, stop, play/pause, next, seek, volume, MPD random, repeat, and consume
 - macOS media keys and Control Center: previous track, play/pause, next track;
   F7/F8/F9 also work while the app window is focused
+- An About dialog with the current version and a short project history
 - Composer, bitrate, and optional MPD file path in Now Playing
 - Add a search or library result next, add it to the end, or play it immediately
 - Keep the queue filled to a chosen size with random library songs
@@ -57,6 +58,10 @@ These images use a sample library with invented song metadata.
 ### Settings
 
 ![Settings](docs/screenshots/settings.png)
+
+### About
+
+![About modern ympd](docs/screenshots/about.png)
 
 ## Build and run
 
