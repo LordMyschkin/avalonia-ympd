@@ -20,6 +20,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly ShuffleService shuffle;
     private readonly DispatcherTimer refreshTimer = new() { Interval = TimeSpan.FromSeconds(2) };
     private bool refreshing;
+    private volatile bool isShuttingDown;
     private int queueVersion = -1;
     private int currentSongId = int.MinValue;
     private string browserPath = "";
@@ -112,7 +113,14 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
         PageInput.SelectedIndex = 0;
         Opened += (_, _) => PageInput.SelectedIndex = 0;
-        shuffle.StateChanged += text => Dispatcher.UIThread.Post(() => Message = text);
+        shuffle.StateChanged += text =>
+        {
+            if (isShuttingDown) return;
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (!isShuttingDown) Message = text;
+            });
+        };
         HostInput.Text = settings.Host;
         PortInput.Text = settings.Port.ToString(CultureInfo.InvariantCulture);
         TargetInput.Text = settings.FillTarget.ToString(CultureInfo.InvariantCulture);
@@ -131,11 +139,23 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             mediaKeys ??= MacMediaKeys.Start(HandleMediaCommandAsync);
             await RefreshAsync();
+            if (isShuttingDown) return;
             await BrowseAsync("");
+            if (isShuttingDown) return;
             shuffle.Start();
             refreshTimer.Start();
         };
-        Closed += (_, _) => { refreshTimer.Stop(); shuffle.Dispose(); mediaKeys?.Dispose(); };
+        Closed += (_, _) => BeginShutdown();
+    }
+
+    public void BeginShutdown()
+    {
+        if (isShuttingDown) return;
+        isShuttingDown = true;
+        refreshTimer.Stop();
+        shuffle.Dispose();
+        mediaKeys?.Dispose();
+        mediaKeys = null;
     }
 
     private void Set<T>(ref T field, T value, [CallerMemberName] string? property = null)
@@ -324,11 +344,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private async Task RefreshAsync()
     {
-        if (refreshing) return;
+        if (refreshing || isShuttingDown) return;
         refreshing = true;
         try
         {
             var status = await client.GetStatusAsync();
+            if (isShuttingDown) return;
             currentStatus = status;
             ConnectionStatus = $"Connected · {settings.Host}:{settings.Port}";
             PlayPauseIcon = status.State == "play" ? "⏸" : "▶";
@@ -344,6 +365,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             if (status.SongId != currentSongId)
             {
                 var song = await client.GetCurrentSongAsync();
+                if (isShuttingDown) return;
                 currentSong = song;
                 currentSongId = status.SongId;
                 TrackTitle = song?.DisplayTitle ?? "No track selected";
@@ -357,13 +379,16 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             if (status.QueueVersion != queueVersion)
             {
                 queueVersion = status.QueueVersion;
-                Replace(Queue, await client.GetQueueAsync());
+                var queue = await client.GetQueueAsync();
+                if (isShuttingDown) return;
+                Replace(Queue, queue);
                 QueueHeading = $"Queue · {Queue.Count} tracks";
             }
             QueueInput.SelectedItem = Queue.FirstOrDefault(song => song.Id == status.SongId);
         }
         catch (Exception error)
         {
+            if (isShuttingDown) return;
             ConnectionStatus = "Disconnected";
             Message = error.Message;
             mediaKeys?.Clear();
@@ -373,8 +398,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private async Task ActAsync(Func<Task> action, string success)
     {
-        try { await action(); Message = success; await RefreshAsync(); }
-        catch (Exception error) { Message = error.Message; }
+        if (isShuttingDown) return;
+        try
+        {
+            await action();
+            if (isShuttingDown) return;
+            Message = success;
+            await RefreshAsync();
+        }
+        catch (Exception error) { if (!isShuttingDown) Message = error.Message; }
     }
 
     private async Task HandleMediaCommandAsync(MediaCommand command)
@@ -421,16 +453,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private async Task BrowseAsync(string path)
     {
+        if (isShuttingDown) return;
         try
         {
             var entries = await client.BrowseAsync(path);
+            if (isShuttingDown) return;
             browserPath = path;
             BrowserPathDisplay = string.IsNullOrEmpty(path) ? "Library" : path;
             Replace(Folders, entries.Where(item => item.Kind == "directory"));
             Replace(Playlists, entries.Where(item => item.Kind == "playlist"));
             Replace(BrowseSongs, entries.Where(item => item.Song is not null).Select(item => item.Song!));
         }
-        catch (Exception error) { Message = error.Message; }
+        catch (Exception error) { if (!isShuttingDown) Message = error.Message; }
     }
     private void UpdateShuffleStatus() => ShuffleStatus = settings.AutoFillEnabled
         ? $"On · keep {settings.FillTarget} tracks in the queue" : "Off · enable in Settings";

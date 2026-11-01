@@ -48,18 +48,28 @@ public partial class App : Application
                 }
                 finally { promptOpen = false; }
             }
-            window.Closing += async (_, e) =>
+            window.Closing += (_, e) =>
+            {
+                if (quitting || !window.AskPauseOnExit)
+                {
+                    window.BeginShutdown();
+                    return;
+                }
+                e.Cancel = true;
+                _ = AskBeforeExitAsync();
+            };
+            desktop.ShutdownRequested += (_, e) =>
             {
                 if (quitting || !window.AskPauseOnExit) return;
                 e.Cancel = true;
-                await AskBeforeExitAsync();
+                _ = AskBeforeExitAsync();
             };
-            desktop.ShutdownRequested += async (_, e) =>
-            {
-                if (quitting || !window.AskPauseOnExit) return;
-                e.Cancel = true;
-                await AskBeforeExitAsync();
-            };
+            if (Program.SmokeClose)
+                window.Opened += async (_, _) =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+                    window.Close();
+                };
 
             MacDockIcon.Apply();
         }

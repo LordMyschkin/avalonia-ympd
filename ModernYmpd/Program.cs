@@ -6,6 +6,7 @@ namespace ModernYmpd;
 class Program
 {
     public static string? ScreenshotDirectory { get; private set; }
+    public static bool SmokeClose { get; private set; }
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
@@ -25,6 +26,11 @@ class Program
         if (args.Length == 2 && args[0] == "--render-screenshots")
         {
             ScreenshotDirectory = Path.GetFullPath(args[1]);
+            return BuildAvaloniaApp().StartWithClassicDesktopLifetime([]);
+        }
+        if (args.Length == 1 && args[0] == "--smoke-close")
+        {
+            SmokeClose = true;
             return BuildAvaloniaApp().StartWithClassicDesktopLifetime([]);
         }
         if (args.Length > 0 && args[0] == "--check-mpd")
