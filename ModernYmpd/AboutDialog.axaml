@@ -20,18 +20,18 @@
     </StackPanel>
 
     <StackPanel Grid.Row="1" Spacing="12">
-      <TextBlock Text="Vom Webplayer ympd zur eigenständigen Avalonia-App: entstanden aus der Idee, ympd und ashuffle in einer Oberfläche zu verbinden."
+      <TextBlock Text="From the ympd web player to a standalone Avalonia app: born from the idea of bringing ympd and ashuffle together in one interface."
                  TextWrapping="Wrap" />
-      <TextBlock Text="Gemeinsam mit OpenAI Codex entwickelt – ‚vibe-coded‘ und Schritt für Schritt erweitert."
+      <TextBlock Text="Vibe-coded with OpenAI Codex and expanded step by step."
                  Foreground="#A9B7C4" TextWrapping="Wrap" />
       <Border Background="#1A222E" BorderBrush="#303B49" BorderThickness="1"
               CornerRadius="10" Padding="14,12">
-        <TextBlock Text="Die App steuert MPD direkt, füllt die Playlist auf Wunsch mit zufälligen Titeln aus der MPD-Bibliothek und unterstützt die macOS-Medientasten."
+        <TextBlock Text="The app controls MPD directly, can fill the queue with random tracks from the MPD library, and supports macOS media keys."
                    TextWrapping="Wrap" />
       </Border>
     </StackPanel>
 
-    <Button Grid.Row="2" Content="Schließen" Click="Close_Click"
+    <Button Grid.Row="2" Content="Close" Click="Close_Click"
             HorizontalAlignment="Right" Background="#B8F36B" Foreground="#172316"
             FontWeight="Bold" Padding="18,9" CornerRadius="9" />
   </Grid>

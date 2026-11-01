@@ -15,16 +15,18 @@ the ympd web service is not required.
 - Composer, bitrate, and optional MPD file path in Now Playing
 - Add a search or library result next, add it to the end, or play it immediately
 - Keep the queue filled to a chosen size with random library songs
-- When closing or quitting, choose whether the app keeps running in the
-  background (including queue filling when enabled) or exits completely
-- On macOS, use the system menu bar's **Ansicht** menu for Queue, Bibliothek,
-  Suche and Einstellungen, and **Wiedergabe** for playback controls
+- Closing the main window quits the app and stops automatic queue filling;
+  Settings can enable an optional prompt to pause MPD before quitting
+- On macOS, use the system menu bar's **View** menu for Queue, Library,
+  Search, and Settings, and **Playback** for playback controls
 
 The random filler uses MPD's `searchcount` and `search ... window` commands. It
 chooses random library positions, then avoids songs already queued and the last
 50 selections when possible. It has no separate music database or library cache.
 It checks the queue every five seconds while the app is running. When it fills
 an empty, stopped queue, it starts playback.
+The pause-on-exit prompt is off by default. Quitting leaves MPD's playback and
+queue untouched unless you choose to pause in that prompt.
 
 ## Download
 
@@ -60,9 +62,15 @@ These images use a sample library with invented song metadata.
 
 ![Settings](docs/screenshots/settings.png)
 
+![Exit setting](docs/screenshots/settings-exit.png)
+
 ### About
 
 ![About modern ympd](docs/screenshots/about.png)
+
+### Optional exit prompt
+
+![Optional exit prompt](docs/screenshots/exit.png)
 
 ## Build and run
 

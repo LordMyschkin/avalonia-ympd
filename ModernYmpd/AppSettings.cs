@@ -11,6 +11,7 @@ public sealed class AppSettings
     public bool AutoFillEnabled { get; set; }
     public int FillTarget { get; set; } = 20;
     public bool ShowFilePath { get; set; }
+    public bool AskPauseOnExit { get; set; }
 
     public static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

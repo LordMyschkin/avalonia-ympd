@@ -251,7 +251,7 @@
           </TabItem>
 
           <TabItem Header="Settings">
-            <ScrollViewer Margin="12,12,12,4">
+            <ScrollViewer x:Name="SettingsScroll" Margin="12,12,12,4">
               <StackPanel Spacing="12" MaxWidth="610" HorizontalAlignment="Left">
                 <TextBlock Text="Connection" FontSize="19" FontWeight="Bold" />
                 <Grid ColumnDefinitions="*,100" ColumnSpacing="10">
@@ -279,6 +279,10 @@
                            Foreground="#99A8B6" TextWrapping="Wrap" />
                 <TextBlock Text="Display" FontSize="19" FontWeight="Bold" Margin="0,10,0,0" />
                 <CheckBox x:Name="ShowFilePathCheck" Content="Show MPD file path below composer" />
+                <TextBlock Text="On exit" FontSize="19" FontWeight="Bold" Margin="0,10,0,0" />
+                <CheckBox x:Name="AskPauseOnExitCheck" Content="Ask whether to pause MPD before quitting" />
+                <TextBlock Text="Closing the app always stops automatic queue filling. MPD keeps its playback and queue unless you choose to pause it."
+                           Foreground="#99A8B6" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
                   <Button Classes="accent" Content="Save and connect" Click="SaveSettings_Click" />
                   <Button Content="Update MPD database" Click="UpdateDatabase_Click" />

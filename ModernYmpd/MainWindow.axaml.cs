@@ -41,6 +41,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private TextBox SearchInput => this.FindControl<TextBox>("SearchBox")!;
     private CheckBox AutoFillInput => this.FindControl<CheckBox>("AutoFillCheck")!;
     private CheckBox FilePathInput => this.FindControl<CheckBox>("ShowFilePathCheck")!;
+    private CheckBox AskPauseInput => this.FindControl<CheckBox>("AskPauseOnExitCheck")!;
     private CheckBox RandomInput => this.FindControl<CheckBox>("RandomCheck")!;
     private CheckBox RepeatInput => this.FindControl<CheckBox>("RepeatCheck")!;
     private CheckBox ConsumeInput => this.FindControl<CheckBox>("ConsumeCheck")!;
@@ -56,7 +57,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     public ObservableCollection<MpdEntry> Folders { get; } = [];
     public ObservableCollection<MpdEntry> Playlists { get; } = [];
     public ObservableCollection<MpdSong> BrowseSongs { get; } = [];
-    public bool AutoFillEnabled => settings.AutoFillEnabled;
+    public bool AskPauseOnExit => settings.AskPauseOnExit;
 
     private string connectionStatus = "Connecting…";
     public string ConnectionStatus { get => connectionStatus; private set => Set(ref connectionStatus, value); }
@@ -117,6 +118,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         TargetInput.Text = settings.FillTarget.ToString(CultureInfo.InvariantCulture);
         AutoFillInput.IsChecked = settings.AutoFillEnabled;
         FilePathInput.IsChecked = settings.ShowFilePath;
+        AskPauseInput.IsChecked = settings.AskPauseOnExit;
         UpdateShuffleStatus();
         if (Program.ScreenshotDirectory is { } screenshotDirectory)
         {
@@ -144,12 +146,17 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     }
     private void Notify(string? name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     public void ShowError(string error) => Message = error;
+    public async Task PauseMpdBeforeExitAsync()
+    {
+        if ((await client.GetStatusAsync()).State == "play")
+            await client.PauseAsync(true);
+    }
     private void InstallMacMenu()
     {
-        var view = new NativeMenuItem("Ansicht") { Menu = new NativeMenu() };
+        var view = new NativeMenuItem("View") { Menu = new NativeMenu() };
         foreach (var (name, page) in new[]
         {
-            ("Queue", 0), ("Bibliothek", 1), ("Suche", 2), ("Einstellungen", 3)
+            ("Queue", 0), ("Library", 1), ("Search", 2), ("Settings", 3)
         })
         {
             var item = new NativeMenuItem(name);
@@ -157,28 +164,28 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             view.Menu.Items.Add(item);
         }
 
-        var playback = new NativeMenuItem("Wiedergabe") { Menu = new NativeMenu() };
+        var playback = new NativeMenuItem("Playback") { Menu = new NativeMenu() };
         void AddPlayback(string name, Func<Task> action)
         {
             var item = new NativeMenuItem(name);
             item.Click += async (_, _) => await ActAsync(action, name);
             playback.Menu.Items.Add(item);
         }
-        AddPlayback("Vorheriger Titel", () => client.PreviousAsync());
-        AddPlayback("Wiedergabe/Pause", async () =>
+        AddPlayback("Previous track", () => client.PreviousAsync());
+        AddPlayback("Play/Pause", async () =>
         {
             if (currentStatus?.State == "play") await client.PauseAsync(true);
             else if (currentStatus?.State == "pause") await client.PauseAsync(false);
             else await client.PlayAsync();
         });
-        AddPlayback("Stopp", () => client.StopAsync());
-        AddPlayback("Nächster Titel", () => client.NextAsync());
+        AddPlayback("Stop", () => client.StopAsync());
+        AddPlayback("Next track", () => client.NextAsync());
 
         var menu = new NativeMenu();
         menu.Items.Add(view);
         menu.Items.Add(playback);
         var aboutMenu = new NativeMenuItem("About modern ympd") { Menu = new NativeMenu() };
-        var about = new NativeMenuItem("Über modern ympd…");
+        var about = new NativeMenuItem("About modern ympd…");
         about.Click += async (_, _) =>
         {
             try { await new AboutDialog().ShowDialog(this); }
@@ -265,6 +272,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 bitmap.Render(this);
                 bitmap.Save(Path.Combine(directory, name), PngBitmapEncoderOptions.Default);
                 Console.WriteLine($"Rendered {name}");
+                if (page == 3)
+                {
+                    var scroll = this.FindControl<ScrollViewer>("SettingsScroll")!;
+                    scroll.Offset = new Vector(0, Math.Max(0, scroll.Extent.Height - scroll.Viewport.Height));
+                    await Task.Delay(300);
+                    using var bottom = new RenderTargetBitmap(
+                        new PixelSize((int)Bounds.Width, (int)Bounds.Height), new Vector(96, 96));
+                    bottom.Render(this);
+                    bottom.Save(Path.Combine(directory, "settings-exit.png"), PngBitmapEncoderOptions.Default);
+                    scroll.Offset = new Vector(0, 0);
+                    Console.WriteLine("Rendered settings-exit.png");
+                }
             }
             var about = new AboutDialog();
             about.Show(this);
@@ -277,6 +296,17 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             }
             about.Close();
             Console.WriteLine("Rendered about.png");
+            var exit = new ExitDialog();
+            exit.Show(this);
+            await Task.Delay(300);
+            using (var bitmap = new RenderTargetBitmap(
+                new PixelSize((int)exit.Bounds.Width, (int)exit.Bounds.Height), new Vector(96, 96)))
+            {
+                bitmap.Render(exit);
+                bitmap.Save(Path.Combine(directory, "exit.png"), PngBitmapEncoderOptions.Default);
+            }
+            exit.Close();
+            Console.WriteLine("Rendered exit.png");
         }
         catch (Exception error) { Console.Error.WriteLine(error); }
         finally
@@ -619,6 +649,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         settings.FillTarget = target;
         settings.AutoFillEnabled = AutoFillInput.IsChecked == true;
         settings.ShowFilePath = FilePathInput.IsChecked == true;
+        settings.AskPauseOnExit = AskPauseInput.IsChecked == true;
         settings.Save();
         queueVersion = -1;
         currentSongId = int.MinValue;

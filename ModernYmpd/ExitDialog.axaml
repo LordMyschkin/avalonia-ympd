@@ -1,23 +1,29 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ModernYmpd.ExitDialog"
-        Title="Modern YMPD schließen"
-        Width="470" Height="235" MinWidth="470" MinHeight="235"
+        Title="Quit Modern YMPD"
+        Width="510" Height="238" MinWidth="510" MinHeight="238"
         CanResize="False" ShowInTaskbar="False"
         WindowStartupLocation="CenterOwner"
         Background="#17212C" Foreground="#EEF2F5">
+  <Window.Styles>
+    <Style Selector="Button.accent">
+      <Setter Property="Background" Value="#B8F36B" />
+      <Setter Property="Foreground" Value="#172316" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+  </Window.Styles>
   <Grid RowDefinitions="Auto,*,Auto" Margin="24" RowSpacing="14">
-    <TextBlock Text="Modern YMPD schließen?" FontSize="20" FontWeight="Bold" />
+    <TextBlock Text="Pause MPD before quitting?" FontSize="20" FontWeight="Bold" />
     <StackPanel Grid.Row="1" Spacing="8">
-      <TextBlock Text="Soll Modern YMPD die Playlist weiter befüllen oder vollständig beendet werden?"
+      <TextBlock Text="Modern YMPD will close and stop filling the queue. MPD keeps its current playback and queue unless you pause it."
                  TextWrapping="Wrap" />
-      <TextBlock x:Name="FillStatus" Foreground="#B8F36B" TextWrapping="Wrap" />
+      <TextBlock x:Name="ErrorText" Foreground="#FFAA9A" TextWrapping="Wrap" />
     </StackPanel>
     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-      <Button Content="Abbrechen" Click="Cancel_Click" />
-      <Button x:Name="KeepRunningButton" Content="Im Hintergrund weiter" Click="KeepRunning_Click" />
-      <Button Content="Vollständig beenden" Click="Quit_Click"
-              Background="#B8F36B" Foreground="#172316" FontWeight="Bold" />
+      <Button Content="Cancel" Click="Cancel_Click" />
+      <Button Content="Quit without pausing" Click="Quit_Click" />
+      <Button x:Name="PauseButton" Classes="accent" Content="Pause MPD and quit" Click="PauseAndQuit_Click" />
     </StackPanel>
   </Grid>
 </Window>

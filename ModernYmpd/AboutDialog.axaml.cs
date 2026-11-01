@@ -13,7 +13,7 @@ public partial class AboutDialog : Window
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
             .InformationalVersion.Split('+')[0]
             ?? typeof(App).Assembly.GetName().Version?.ToString(3)
-            ?? "unbekannt";
+            ?? "unknown";
         this.FindControl<TextBlock>("VersionText")!.Text = $"Version {version}";
     }
 
