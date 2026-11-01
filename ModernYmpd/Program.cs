@@ -12,6 +12,16 @@ class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject is Exception error)
+                CrashLog.Write(error, "Unhandled exception");
+        };
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            CrashLog.Write(e.Exception, "Unobserved task exception");
+            e.SetObserved();
+        };
         if (args.Length == 2 && args[0] == "--render-screenshots")
         {
             ScreenshotDirectory = Path.GetFullPath(args[1]);

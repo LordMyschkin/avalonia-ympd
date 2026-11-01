@@ -45,6 +45,11 @@ public partial class App : Application
                     }
                     else if (!wasVisible) window.Hide();
                 }
+                catch (Exception error)
+                {
+                    CrashLog.Write(error, "Exit dialog");
+                    window.ShowError(error.Message);
+                }
                 finally { promptOpen = false; }
             }
             window.Closing += async (_, e) =>

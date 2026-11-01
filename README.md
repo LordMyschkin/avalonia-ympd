@@ -13,6 +13,8 @@ the ympd web service is not required.
 - Keep the queue filled to a chosen size with random library songs
 - When closing or quitting, choose whether the app keeps running in the
   background (including queue filling when enabled) or exits completely
+- On macOS, use the system menu bar's **Ansicht** menu for Queue, Bibliothek,
+  Suche and Einstellungen, and **Wiedergabe** for playback controls
 
 The random filler uses MPD's `searchcount` and `search ... window` commands. It
 chooses random library positions, then avoids songs already queued and the last
@@ -81,6 +83,7 @@ build output under `dist` is ignored by Git.
 The default MPD address is `127.0.0.1:6600`. Connection and shuffle settings
 are saved in the user's application-data folder under
 `modern-ympd/settings.json`. The MPD password is held only until the app quits.
+Unhandled .NET errors are written to `modern-ympd/errors.log` in the same folder.
 If the original ympd service is also set to fill the queue, disable that setting
 there to avoid two independent fillers.
 

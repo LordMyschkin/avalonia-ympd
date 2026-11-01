@@ -59,6 +59,9 @@
       <Setter Property="Padding" Value="16,11" />
     </Style>
     <Style Selector="TabItem:selected"><Setter Property="Foreground" Value="#B8F36B" /></Style>
+    <Style Selector="TabControl.native-navigation TabItem">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
   </Window.Styles>
 
   <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="28,20,28,18" RowSpacing="16">

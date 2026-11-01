@@ -101,6 +101,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         DataContext = this;
         client = new MpdClient(settings);
         shuffle = new ShuffleService(client, settings);
+        if (OperatingSystem.IsMacOS())
+        {
+            PageInput.Classes.Add("native-navigation");
+            InstallMacMenu();
+        }
         shuffle.StateChanged += text => Dispatcher.UIThread.Post(() => Message = text);
         HostInput.Text = settings.Host;
         PortInput.Text = settings.Port.ToString(CultureInfo.InvariantCulture);
@@ -132,6 +137,42 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         Notify(property);
     }
     private void Notify(string? name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    public void ShowError(string error) => Message = error;
+    private void InstallMacMenu()
+    {
+        var view = new NativeMenuItem("Ansicht") { Menu = new NativeMenu() };
+        foreach (var (name, page) in new[]
+        {
+            ("Queue", 0), ("Bibliothek", 1), ("Suche", 2), ("Einstellungen", 3)
+        })
+        {
+            var item = new NativeMenuItem(name);
+            item.Click += (_, _) => PageInput.SelectedIndex = page;
+            view.Menu.Items.Add(item);
+        }
+
+        var playback = new NativeMenuItem("Wiedergabe") { Menu = new NativeMenu() };
+        void AddPlayback(string name, Func<Task> action)
+        {
+            var item = new NativeMenuItem(name);
+            item.Click += async (_, _) => await ActAsync(action, name);
+            playback.Menu.Items.Add(item);
+        }
+        AddPlayback("Vorheriger Titel", () => client.PreviousAsync());
+        AddPlayback("Wiedergabe/Pause", async () =>
+        {
+            if (currentStatus?.State == "play") await client.PauseAsync(true);
+            else if (currentStatus?.State == "pause") await client.PauseAsync(false);
+            else await client.PlayAsync();
+        });
+        AddPlayback("Stopp", () => client.StopAsync());
+        AddPlayback("Nächster Titel", () => client.NextAsync());
+
+        var menu = new NativeMenu();
+        menu.Items.Add(view);
+        menu.Items.Add(playback);
+        NativeMenu.SetMenu(this, menu);
+    }
     private void PopulateDemo()
     {
         settings.ShowFilePath = true;
