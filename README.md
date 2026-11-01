@@ -12,7 +12,7 @@ the idea of combining its controls with ashuffle-style queue filling.
 - macOS media keys and Control Center: previous track, play/pause, next track;
   F7/F8/F9 also work while the app window is focused
 - The macOS Play key can start MPD playback immediately after app launch
-- An About dialog with the current version and a short project history
+- An About dialog with the current version, project history, and live MPD statistics
 - Composer, bitrate, and optional MPD file path in Now Playing
 - Add a search or library result next, add it to the end, or play it immediately
 - Keep the queue filled to a chosen size with random library songs
@@ -36,13 +36,11 @@ queue untouched unless you choose to pause in that prompt.
 
 ## Download
 
-Get the [latest release](https://github.com/LordMyschkin/avalonia-ympd/releases/latest):
-
-- **macOS Apple Silicon:** download the DMG and drag `A-mpd.app` to Applications.
-- **Windows x64:** download and run the single-file EXE.
-
-Both downloads include the .NET runtime. The macOS app is ad hoc signed; the
-Windows EXE is unsigned.
+Prebuilt versions are listed on [GitHub Releases](https://github.com/LordMyschkin/avalonia-ympd/releases);
+check the app name and version on each release. To build the current A-mpd
+source, use the scripts below. They produce `dist/A-mpd-macos-arm64.dmg` and
+`dist/A-mpd-win-x64.exe`, both with the .NET runtime included. The macOS app is
+ad hoc signed; the Windows EXE is unsigned.
 
 An ad hoc signature can trigger macOS Gatekeeper's unverified-app warning for
 downloads. If you trust this build, launch it once, then use **System Settings →

@@ -3,7 +3,7 @@
         x:Class="ModernYmpd.AboutDialog"
         Title="About A-mpd"
         Icon="avares://ModernYmpd/Assets/app.ico"
-        Width="540" Height="385" MinWidth="540" MinHeight="385"
+        Width="540" Height="555" MinWidth="540" MinHeight="555"
         CanResize="False" ShowInTaskbar="False"
         WindowStartupLocation="CenterOwner"
         Background="#10151D" Foreground="#EEF2F5">
@@ -28,6 +28,14 @@
               CornerRadius="10" Padding="14,12">
         <TextBlock Text="The app controls MPD directly, can fill the queue with random tracks from the MPD library, and supports macOS media keys."
                    TextWrapping="Wrap" />
+      </Border>
+      <Border Background="#1A222E" BorderBrush="#303B49" BorderThickness="1"
+              CornerRadius="10" Padding="14,12">
+        <StackPanel Spacing="9">
+          <TextBlock Text="MPD STATISTICS" FontSize="11" FontWeight="Bold" Foreground="#B8F36B" />
+          <TextBlock x:Name="StatsText" Text="Loading MPD statistics…"
+                     FontSize="12" Foreground="#C1CED6" TextWrapping="Wrap" />
+        </StackPanel>
       </Border>
     </StackPanel>
 

@@ -39,6 +39,7 @@ class Program
             {
                 var client = new MpdClient(AppSettings.Load());
                 var status = client.GetStatusAsync().GetAwaiter().GetResult();
+                var statistics = client.GetStatisticsAsync().GetAwaiter().GetResult();
                 var queue = client.GetQueueAsync().GetAwaiter().GetResult();
                 var root = client.BrowseAsync("").GetAwaiter().GetResult();
                 var libraryCount = client.GetLibraryCountAsync().GetAwaiter().GetResult();
@@ -46,6 +47,7 @@ class Program
                 var query = args.Length > 1 ? args[1] : "music";
                 var matches = client.SearchAsync(query).GetAwaiter().GetResult();
                 Console.WriteLine($"MPD {status.State}; queue {queue.Count}; library root {root.Count}; library songs {libraryCount}; sample '{sample?.DisplayTitle}'; search '{query}' {matches.Count}");
+                Console.WriteLine($"MPD stats: {statistics.Artists} artists, {statistics.Albums} albums, {statistics.Songs} songs; database updated {statistics.DatabaseUpdated:O}");
                 return 0;
             }
             catch (Exception error)

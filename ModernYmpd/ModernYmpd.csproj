@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <Version>0.2.8</Version>
+    <Version>0.2.9</Version>
     <AssemblyTitle>A-mpd</AssemblyTitle>
     <Product>A-mpd</Product>
     <Nullable>enable</Nullable>

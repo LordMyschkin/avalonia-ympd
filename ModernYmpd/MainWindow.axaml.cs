@@ -222,7 +222,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private async Task ShowAboutAsync()
     {
-        try { await new AboutDialog().ShowDialog(this); }
+        try { await new AboutDialog(client).ShowDialog(this); }
         catch (Exception error)
         {
             CrashLog.Write(error, "About dialog");
@@ -317,7 +317,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     Console.WriteLine("Rendered settings-exit.png");
                 }
             }
-            var about = new AboutDialog();
+            var about = new AboutDialog(null, preview: new MpdStatistics(
+                1024, 2816, 42000, 5 * 86400 + 19 * 3600, 7 * 3600 + 32 * 60,
+                156 * 86400 + 23 * 3600, new DateTimeOffset(2026, 10, 24, 15, 7, 0, TimeSpan.Zero)));
             about.Show(this);
             await Task.Delay(300);
             using (var bitmap = new RenderTargetBitmap(

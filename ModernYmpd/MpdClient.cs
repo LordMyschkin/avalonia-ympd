@@ -51,8 +51,31 @@ public sealed record MpdStatus(
     bool Repeat,
     bool Consume);
 
+public sealed record MpdStatistics(
+    long Artists,
+    long Albums,
+    long Songs,
+    long UptimeSeconds,
+    long PlaytimeSeconds,
+    long DatabasePlaytimeSeconds,
+    DateTimeOffset? DatabaseUpdated);
+
 public sealed class MpdClient(AppSettings settings)
 {
+    public async Task<MpdStatistics> GetStatisticsAsync(CancellationToken token = default)
+    {
+        var values = Fields(await SendAsync("stats", token));
+        var updated = Long(values, "db_update");
+        return new MpdStatistics(
+            Long(values, "artists"),
+            Long(values, "albums"),
+            Long(values, "songs"),
+            Long(values, "uptime"),
+            Long(values, "playtime"),
+            Long(values, "db_playtime"),
+            updated > 0 ? DateTimeOffset.FromUnixTimeSeconds(updated) : null);
+    }
+
     public async Task<MpdStatus> GetStatusAsync(CancellationToken token = default)
     {
         var values = Fields(await SendAsync("status", token));
@@ -242,6 +265,8 @@ public sealed class MpdClient(AppSettings settings)
         fields.TryGetValue(key, out var value) ? value : "";
     private static int Int(Dictionary<string, string> fields, string key, int fallback = 0) =>
         int.TryParse(Get(fields, key), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : fallback;
+    private static long Long(Dictionary<string, string> fields, string key) =>
+        long.TryParse(Get(fields, key), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : 0;
     private static double Number(Dictionary<string, string> fields, string key, double fallback = 0) =>
         double.TryParse(Get(fields, key), NumberStyles.Float, CultureInfo.InvariantCulture, out var value) ? value : fallback;
 }
