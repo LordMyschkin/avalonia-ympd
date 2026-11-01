@@ -40,10 +40,14 @@ internal sealed class MacMediaKeys : IDisposable
             var instance = new MacMediaKeys(handler);
             active = instance;
             ympd_media_start(NativeCallback);
+            // Publish an idle player immediately so Play can reach MPD before
+            // the first track has ever been started in this app session.
+            ympd_media_update("modern ympd", "MPD", null, null, 0, 0, 2);
             return instance;
         }
         catch (Exception error)
         {
+            try { ympd_media_stop(); } catch { /* Keep the original error. */ }
             active = null;
             CrashLog.Write(error, "macOS media keys initialization");
             return null;
@@ -85,10 +89,11 @@ internal sealed class MacMediaKeys : IDisposable
 
     public void Clear()
     {
+        if (publishedState == "idle") return;
         try { ympd_media_update(null, null, null, null, 0, 0, 0); }
         catch (Exception error) { CrashLog.Write(error, "macOS Now Playing clear"); }
         publishedSongId = int.MinValue;
-        publishedState = "";
+        publishedState = "idle";
     }
 
     public void Dispose()

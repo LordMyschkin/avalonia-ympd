@@ -10,6 +10,7 @@ the ympd web service is not required.
 - Previous, stop, play/pause, next, seek, volume, MPD random, repeat, and consume
 - macOS media keys and Control Center: previous track, play/pause, next track;
   F7/F8/F9 also work while the app window is focused
+- The macOS Play key can start MPD playback immediately after app launch
 - An About dialog with the current version and a short project history
 - Composer, bitrate, and optional MPD file path in Now Playing
 - Add a search or library result next, add it to the end, or play it immediately
