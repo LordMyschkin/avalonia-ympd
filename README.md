@@ -39,8 +39,9 @@ queue untouched unless you choose to pause in that prompt.
 Prebuilt versions are listed on [GitHub Releases](https://github.com/LordMyschkin/avalonia-ympd/releases);
 check the app name and version on each release. To build the current A-mpd
 source, use the scripts below. They produce `dist/A-mpd-macos-arm64.dmg` and
-`dist/A-mpd-win-x64.exe`, both with the .NET runtime included. The macOS app is
-ad hoc signed; the Windows EXE is unsigned.
+`dist/A-mpd-win-x64.exe`. The Linux build produces a Debian Trixie `.deb` and
+an Arch Linux `.pkg.tar.zst`. All four packages include the .NET runtime. The
+macOS app is ad hoc signed; the Windows EXE is unsigned.
 
 An ad hoc signature can trigger macOS Gatekeeper's unverified-app warning for
 downloads. If you trust this build, launch it once, then use **System Settings →
@@ -100,6 +101,20 @@ On macOS, `./build-macos-dmg.sh` packages this app in a DMG.
 To cross-build the self-contained Windows x64 EXE from macOS or Linux, run
 `./build-windows-exe.sh`. The result is `dist/A-mpd-win-x64.exe`.
 
+To cross-build the self-contained Linux x86_64 packages, install Python 3 and
+`zstd`, then run `python3 build-linux-packages.py`. With version 0.2.9 this
+produces `dist/a-mpd_0.2.9_amd64.deb` for Debian Trixie and
+`dist/a-mpd-0.2.9-1-x86_64.pkg.tar.zst` for Arch Linux. Install either package
+with its distribution's package manager:
+
+```sh
+sudo apt install ./dist/a-mpd_0.2.9_amd64.deb
+sudo pacman -U dist/a-mpd-0.2.9-1-x86_64.pkg.tar.zst
+```
+
+Run `a-mpd` after installation. Avalonia uses X11 by default, including
+XWayland on Wayland desktops. These packages contain no macOS media-key bridge.
+
 To regenerate the sample screenshots, run
 `dotnet run --project ModernYmpd/ModernYmpd.csproj -- --render-screenshots docs/screenshots`.
 
@@ -109,8 +124,9 @@ build output under `dist` is ignored by Git.
 
 The default MPD address is `127.0.0.1:6600`. Connection and shuffle settings
 are saved in the user's application-data folder under
-`modern-ympd/settings.json`. The MPD password is held only until the app quits.
-Unhandled .NET errors are written to `modern-ympd/errors.log` in the same folder.
+`a-mpd/settings.json`; an existing `modern-ympd/settings.json` is read when the
+new file does not yet exist. The MPD password is held only until the app quits.
+Unhandled .NET errors are written to `a-mpd/errors.log` in the same folder.
 If the original ympd service is also set to fill the queue, disable that setting
 there to avoid two independent fillers.
 
