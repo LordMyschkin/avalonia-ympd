@@ -8,6 +8,8 @@ the ympd web service is not required.
 - Queue with drag-and-drop reordering and a floating track preview, library folders,
   stored playlists, and search
 - Previous, stop, play/pause, next, seek, volume, MPD random, repeat, and consume
+- macOS media keys and Control Center: previous track, play/pause, next track;
+  F7/F8/F9 also work while the app window is focused
 - Composer, bitrate, and optional MPD file path in Now Playing
 - Add a search or library result next, add it to the end, or play it immediately
 - Keep the queue filled to a chosen size with random library songs
@@ -31,6 +33,10 @@ Get the [latest release](https://github.com/LordMyschkin/avalonia-ympd/releases/
 
 Both downloads include the .NET runtime. The macOS app is ad hoc signed; the
 Windows EXE is unsigned.
+
+An ad hoc signature can trigger macOS Gatekeeper's unverified-app warning for
+downloads. If you trust this build, launch it once, then use **System Settings →
+Privacy & Security → Open Anyway**. Older builds used the same ad hoc signing.
 
 ## Screenshots
 
@@ -67,6 +73,9 @@ On macOS, build a self-contained `.app` bundle with:
 ./build-macos-app.sh
 open "dist/Avalonia YMPD.app"
 ```
+
+The macOS media-key bridge is compiled into this `.app` by the build script.
+The plain `dotnet run` command does not include that native bridge.
 
 On macOS, `./build-macos-dmg.sh` packages this app in a DMG.
 

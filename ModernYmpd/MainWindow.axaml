@@ -121,7 +121,7 @@
     <Grid Grid.Row="2" ColumnDefinitions="*,250" ColumnSpacing="16" MinHeight="0">
       <Border Grid.Column="0" Background="#1A222E" BorderBrush="#303B49" BorderThickness="1"
               CornerRadius="16" Padding="12,8,12,12">
-        <TabControl x:Name="Pages">
+        <TabControl x:Name="Pages" SelectedIndex="0">
           <TabItem Header="Queue">
             <Grid RowDefinitions="Auto,*" Margin="8,10,8,4" RowSpacing="8">
               <Grid ColumnDefinitions="*,Auto">

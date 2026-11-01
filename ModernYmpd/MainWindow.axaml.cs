@@ -24,6 +24,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private int currentSongId = int.MinValue;
     private string browserPath = "";
     private MpdStatus? currentStatus;
+    private MpdSong? currentSong;
+    private MacMediaKeys? mediaKeys;
     private MpdSong? dragSong;
     private IPointer? dragPointer;
     private Border? dragSource;
@@ -105,7 +107,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             PageInput.Classes.Add("native-navigation");
             InstallMacMenu();
+            KeyDown += MediaKeyDown;
         }
+        PageInput.SelectedIndex = 0;
+        Opened += (_, _) => PageInput.SelectedIndex = 0;
         shuffle.StateChanged += text => Dispatcher.UIThread.Post(() => Message = text);
         HostInput.Text = settings.Host;
         PortInput.Text = settings.Port.ToString(CultureInfo.InvariantCulture);
@@ -122,12 +127,13 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         refreshTimer.Tick += async (_, _) => await RefreshAsync();
         Opened += async (_, _) =>
         {
+            mediaKeys ??= MacMediaKeys.Start(HandleMediaCommandAsync);
             await RefreshAsync();
             await BrowseAsync("");
             shuffle.Start();
             refreshTimer.Start();
         };
-        Closed += (_, _) => { refreshTimer.Stop(); shuffle.Dispose(); };
+        Closed += (_, _) => { refreshTimer.Stop(); shuffle.Dispose(); mediaKeys?.Dispose(); };
     }
 
     private void Set<T>(ref T field, T value, [CallerMemberName] string? property = null)
@@ -283,8 +289,9 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             DurationText = Clock(status.Duration);
             if (status.SongId != currentSongId)
             {
-                currentSongId = status.SongId;
                 var song = await client.GetCurrentSongAsync();
+                currentSong = song;
+                currentSongId = status.SongId;
                 TrackTitle = song?.DisplayTitle ?? "No track selected";
                 TrackSubtitle = song is null ? "Choose music from Queue, Library or Search"
                     : string.Join("  ·  ", new[] { song.Artist, song.Album }
@@ -292,6 +299,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 ComposerText = string.IsNullOrWhiteSpace(song?.Composer) ? "" : $"Composed by {song.Composer}";
                 FilePathText = song?.File ?? "";
             }
+            mediaKeys?.Update(currentSong, status);
             if (status.QueueVersion != queueVersion)
             {
                 queueVersion = status.QueueVersion;
@@ -304,6 +312,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         {
             ConnectionStatus = "Disconnected";
             Message = error.Message;
+            mediaKeys?.Clear();
         }
         finally { refreshing = false; }
     }
@@ -312,6 +321,48 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         try { await action(); Message = success; await RefreshAsync(); }
         catch (Exception error) { Message = error.Message; }
+    }
+
+    private async Task HandleMediaCommandAsync(MediaCommand command)
+    {
+        switch (command)
+        {
+            case MediaCommand.Previous:
+                await ActAsync(() => client.PreviousAsync(), "Previous track");
+                break;
+            case MediaCommand.Next:
+                await ActAsync(() => client.NextAsync(), "Next track");
+                break;
+            case MediaCommand.Play:
+                await ActAsync(() => client.PlayAsync(), "Playing");
+                break;
+            case MediaCommand.Pause:
+                await ActAsync(() => client.PauseAsync(true), "Paused");
+                break;
+            case MediaCommand.Toggle:
+                await ActAsync(async () =>
+                {
+                    var state = (await client.GetStatusAsync()).State;
+                    if (state == "play") await client.PauseAsync(true);
+                    else if (state == "pause") await client.PauseAsync(false);
+                    else await client.PlayAsync();
+                }, "Playback updated");
+                break;
+        }
+    }
+
+    private void MediaKeyDown(object? sender, KeyEventArgs e)
+    {
+        var command = e.Key switch
+        {
+            Key.F7 => MediaCommand.Previous,
+            Key.F8 => MediaCommand.Toggle,
+            Key.F9 => MediaCommand.Next,
+            _ => (MediaCommand?)null
+        };
+        if (command is null) return;
+        e.Handled = true;
+        _ = HandleMediaCommandAsync(command.Value);
     }
 
     private async Task BrowseAsync(string path)

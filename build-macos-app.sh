@@ -7,8 +7,8 @@ project="$repo/ModernYmpd/ModernYmpd.csproj"
 dist="$repo/dist"
 dotnet="${DOTNET:-dotnet}"
 case "$(uname -m)" in
-    arm64) runtime=osx-arm64 ;;
-    x86_64) runtime=osx-x64 ;;
+    arm64) runtime=osx-arm64; architecture=arm64 ;;
+    x86_64) runtime=osx-x64; architecture=x86_64 ;;
     *) echo "Unsupported macOS architecture." >&2; exit 1 ;;
 esac
 
@@ -20,6 +20,11 @@ mkdir -p "$publish" "$app/Contents/MacOS" "$app/Contents/Resources"
     --no-restore -o "$publish" -p:UseAppHost=true
 cp -R "$publish/." "$app/Contents/MacOS/"
 cp "$repo/ModernYmpd/Assets/app.icns" "$app/Contents/Resources/app.icns"
+xcrun clang -arch "$architecture" -fobjc-arc -fblocks -dynamiclib \
+    -install_name @rpath/libModernYmpdMediaKeys.dylib \
+    -framework Foundation -framework MediaPlayer \
+    -o "$app/Contents/MacOS/libModernYmpdMediaKeys.dylib" \
+    "$repo/ModernYmpd/MacMediaKeys.m"
 cat > "$app/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -27,8 +32,8 @@ cat > "$app/Contents/Info.plist" <<PLIST
   <key>CFBundleName</key><string>Modern YMPD</string>
   <key>CFBundleDisplayName</key><string>Modern YMPD</string>
   <key>CFBundleIdentifier</key><string>org.lordmyschkin.avaloniaympd</string>
-  <key>CFBundleVersion</key><string>3</string>
-  <key>CFBundleShortVersionString</key><string>0.2.1</string>
+  <key>CFBundleVersion</key><string>5</string>
+  <key>CFBundleShortVersionString</key><string>0.2.3</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleExecutable</key><string>ModernYmpd</string>
   <key>CFBundleIconFile</key><string>app.icns</string>
