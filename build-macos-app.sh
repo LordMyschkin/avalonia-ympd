@@ -13,7 +13,7 @@ case "$(uname -m)" in
 esac
 
 publish="$dist/publish-$runtime"
-app="$dist/A-mpd.app"
+app="${APP_OUTPUT:-$dist/A-mpd.app}"
 if pgrep -f "$app/Contents/MacOS/A-mpd" >/dev/null 2>&1; then
     echo "Close $app before rebuilding it; replacing a running app can crash .NET." >&2
     exit 1
@@ -37,8 +37,8 @@ cat > "$app/Contents/Info.plist" <<PLIST
   <key>CFBundleName</key><string>A-mpd</string>
   <key>CFBundleDisplayName</key><string>A-mpd</string>
   <key>CFBundleIdentifier</key><string>org.lordmyschkin.ampd</string>
-  <key>CFBundleVersion</key><string>12</string>
-  <key>CFBundleShortVersionString</key><string>0.2.10</string>
+  <key>CFBundleVersion</key><string>13</string>
+  <key>CFBundleShortVersionString</key><string>0.2.11</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleExecutable</key><string>A-mpd</string>
   <key>CFBundleIconFile</key><string>app.icns</string>

@@ -4,12 +4,10 @@ set -eu
 
 repo="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)"
 dist="$repo/dist"
-"$repo/build-macos-app.sh"
-
 staging="$dist/dmg-staging"
 rm -rf "$staging"
 mkdir -p "$staging"
-ditto "$dist/A-mpd.app" "$staging/A-mpd.app"
+APP_OUTPUT="$staging/A-mpd.app" "$repo/build-macos-app.sh"
 if [ ! -e "$staging/Applications" ]; then
     ln -s /Applications "$staging/Applications"
 fi
@@ -22,4 +20,5 @@ esac
 image="$dist/A-mpd-macos-$architecture.dmg"
 hdiutil create -volname 'A-mpd' -srcfolder "$staging" -ov -format UDZO "$image"
 hdiutil verify "$image"
+rm -rf "$staging"
 echo "Built: $image"
