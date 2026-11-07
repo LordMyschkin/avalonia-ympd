@@ -1,8 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ModernYmpd.MainWindow"
-        Title="A-mpd" Icon="avares://ModernYmpd/Assets/app.ico" Width="1180" Height="780"
-        MinWidth="820" MinHeight="580"
+        Title="A-mpd" Icon="avares://ModernYmpd/Assets/app.ico" Width="1120" Height="700"
+        MinWidth="820" MinHeight="480"
         Background="#10151D" Foreground="#EEF2F5">
   <Window.Styles>
     <Style Selector="Button">
@@ -11,8 +11,8 @@
       <Setter Property="BorderBrush" Value="#3A4A59" />
       <Setter Property="BorderThickness" Value="1" />
       <Setter Property="CornerRadius" Value="9" />
-      <Setter Property="Padding" Value="12,8" />
-      <Setter Property="Margin" Value="3" />
+      <Setter Property="Padding" Value="9,5" />
+      <Setter Property="Margin" Value="2" />
     </Style>
     <Style Selector="Button:pointerover"><Setter Property="Background" Value="#334657" /></Style>
     <Style Selector="Button.accent">
@@ -35,7 +35,7 @@
     </Style>
     <Style Selector="ListBoxItem">
       <Setter Property="Padding" Value="0" />
-      <Setter Property="Margin" Value="0,2" />
+      <Setter Property="Margin" Value="0,1" />
       <Setter Property="CornerRadius" Value="9" />
     </Style>
     <Style Selector="Border.queue-drop-before">
@@ -56,7 +56,7 @@
     <Style Selector="TabItem">
       <Setter Property="Foreground" Value="#A9B7C4" />
       <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Padding" Value="16,11" />
+      <Setter Property="Padding" Value="13,7" />
     </Style>
     <Style Selector="TabItem:selected"><Setter Property="Foreground" Value="#B8F36B" /></Style>
     <Style Selector="TabControl.native-navigation TabItem">
@@ -64,15 +64,15 @@
     </Style>
   </Window.Styles>
 
-  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="28,20,28,18" RowSpacing="16">
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="14,9,14,8" RowSpacing="8">
     <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" VerticalAlignment="Center">
-      <Border Width="35" Height="35" CornerRadius="10" Background="#B8F36B" VerticalAlignment="Center">
+      <Border Width="31" Height="31" CornerRadius="9" Background="#B8F36B" VerticalAlignment="Center">
         <TextBlock Text="▶" Foreground="#172316" FontSize="16" FontWeight="Bold"
                    HorizontalAlignment="Center" VerticalAlignment="Center" />
       </Border>
       <StackPanel Grid.Column="1" Margin="11,0,0,0" Spacing="1">
-        <TextBlock Text="A-mpd" FontSize="21" FontWeight="Bold" />
-        <TextBlock Text="MPD desktop player + library shuffle" FontSize="11" Foreground="#99A8B6" />
+        <TextBlock Text="A-mpd" FontSize="19" FontWeight="Bold" />
+        <TextBlock Text="MPD desktop player + library shuffle" FontSize="10" Foreground="#99A8B6" />
       </StackPanel>
       <Button Grid.Column="2" Width="36" Height="36" Padding="0"
               HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
@@ -92,8 +92,8 @@
     </Grid>
 
     <Border Grid.Row="1" Background="#233347" BorderBrush="#3D5146" BorderThickness="1"
-            CornerRadius="16" Padding="22,17,22,18">
-      <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+            CornerRadius="12" Padding="14,7,14,2">
+      <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Text="●  NOW PLAYING" FontSize="11" FontWeight="Bold" Foreground="#B8F36B" VerticalAlignment="Center" />
           <Border Grid.Column="1" Background="#334A3E" CornerRadius="7" Padding="8,4"
@@ -101,9 +101,9 @@
             <TextBlock Text="{Binding BitrateText}" FontSize="11" Foreground="#B8F36B" />
           </Border>
         </Grid>
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="20" VerticalAlignment="Center">
-          <StackPanel Grid.Column="0" Spacing="3" MinWidth="0">
-            <TextBlock Text="{Binding TrackTitle}" FontSize="25" FontWeight="Bold"
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="12" VerticalAlignment="Center">
+          <StackPanel Grid.Column="0" Spacing="1" MinWidth="0">
+            <TextBlock Text="{Binding TrackTitle}" FontSize="21" FontWeight="Bold"
                        TextTrimming="CharacterEllipsis" MaxLines="1" />
             <TextBlock Text="{Binding TrackSubtitle}" FontSize="13" Foreground="#C1CED6"
                        TextTrimming="CharacterEllipsis" MaxLines="1" />
@@ -113,16 +113,16 @@
                        IsVisible="{Binding IsFilePathVisible}" TextTrimming="CharacterEllipsis" MaxLines="1" />
           </StackPanel>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-            <Button Width="43" Height="42" Padding="0" HorizontalContentAlignment="Center"
+            <Button Width="37" Height="35" Padding="0" HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center" Click="Previous_Click" ToolTip.Tip="Previous track">
               <Path Data="M 18,3 L 10,10 L 18,17 Z M 10,3 L 2,10 L 10,17 Z"
                     Fill="#EEF2F5" Width="18" Height="16" Stretch="Uniform" />
             </Button>
-            <Button Width="43" Height="42" Padding="0" HorizontalContentAlignment="Center"
+            <Button Width="37" Height="35" Padding="0" HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center" Click="Stop_Click" ToolTip.Tip="Stop">
               <Border Width="14" Height="14" Background="#EEF2F5" CornerRadius="1" />
             </Button>
-            <Button Classes="accent" Width="48" Height="44" Padding="0"
+            <Button Classes="accent" Width="41" Height="37" Padding="0"
                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                     Click="PlayPause_Click" ToolTip.Tip="Play or pause">
               <Grid Width="20" Height="20">
@@ -136,7 +136,7 @@
                 </StackPanel>
               </Grid>
             </Button>
-            <Button Width="43" Height="42" Padding="0" HorizontalContentAlignment="Center"
+            <Button Width="37" Height="35" Padding="0" HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center" Click="Next_Click" ToolTip.Tip="Next track">
               <Path Data="M 2,3 L 10,10 L 2,17 Z M 10,3 L 18,10 L 10,17 Z"
                     Fill="#EEF2F5" Width="18" Height="16" Stretch="Uniform" />
@@ -145,21 +145,21 @@
         </Grid>
         <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalAlignment="Center">
           <TextBlock Text="{Binding ElapsedText}" FontSize="11" Foreground="#99A8B6" VerticalAlignment="Center" />
-          <Slider x:Name="SeekSlider" Grid.Column="1" Minimum="0" Maximum="{Binding TrackDuration}"
+          <Slider x:Name="SeekSlider" Grid.Column="1" Height="24" Minimum="0" Maximum="{Binding TrackDuration}"
                   Value="{Binding ElapsedSeconds, Mode=OneWay}" PointerReleased="Seek_Released" />
           <TextBlock Grid.Column="2" Text="{Binding DurationText}" FontSize="11" Foreground="#99A8B6" VerticalAlignment="Center" />
         </Grid>
       </Grid>
     </Border>
 
-    <Grid Grid.Row="2" ColumnDefinitions="*,250" ColumnSpacing="16" MinHeight="0">
+    <Grid Grid.Row="2" ColumnDefinitions="*,230" ColumnSpacing="8" MinHeight="0">
       <Border Grid.Column="0" Background="#1A222E" BorderBrush="#303B49" BorderThickness="1"
-              CornerRadius="16" Padding="12,8,12,12">
+              CornerRadius="12" Padding="6,3,6,5">
         <TabControl x:Name="Pages" SelectedIndex="0">
           <TabItem Header="Queue">
-            <Grid RowDefinitions="Auto,*" Margin="8,10,8,4" RowSpacing="8">
+            <Grid RowDefinitions="Auto,*" Margin="4,4,4,2" RowSpacing="4">
               <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="{Binding QueueHeading}" FontSize="19" FontWeight="Bold" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding QueueHeading}" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" />
                 <Button Grid.Column="1" Content="Clear queue" Click="ClearQueue_Click" />
               </Grid>
               <Grid Grid.Row="1" ClipToBounds="True">
@@ -168,37 +168,37 @@
                        PointerCaptureLost="Queue_PointerCaptureLost">
                 <ListBox.ItemTemplate>
                   <DataTemplate>
-                    <Border Classes="queue-row" Background="#212C3A" CornerRadius="9" Padding="11,7" Margin="0,2"
+                    <Border Classes="queue-row" Background="#212C3A" CornerRadius="7" Padding="8,2" Margin="0,1"
                             PointerPressed="Queue_PointerPressed">
                       <Grid ColumnDefinitions="50,*,Auto,Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                           <TextBlock Text="⠿" Foreground="#B8F36B" ToolTip.Tip="Drag to reorder" />
                           <TextBlock Text="{Binding PositionText}" Foreground="#99A8B6" />
                         </StackPanel>
-                        <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-                          <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1" />
-                          <TextBlock Text="{Binding DisplayArtist}" FontSize="11" Foreground="#99A8B6"
+                        <StackPanel Grid.Column="1" Spacing="0" MinWidth="0">
+                          <TextBlock Text="{Binding DisplayTitle}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxLines="1" />
+                          <TextBlock Text="{Binding DisplayArtist}" FontSize="10" Foreground="#99A8B6"
                                      TextTrimming="CharacterEllipsis" MaxLines="1" />
                         </StackPanel>
                         <TextBlock Grid.Column="2" Text="{Binding DurationText}" Foreground="#99A8B6"
                                    FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
-                        <Button Grid.Column="3" Content="Play" Click="QueuePlay_Click" />
-                        <Button Grid.Column="4" Content="×" Click="QueueRemove_Click" ToolTip.Tip="Remove from queue" />
+                        <Button Grid.Column="3" Content="Play" FontSize="11" Padding="7,3" Click="QueuePlay_Click" />
+                        <Button Grid.Column="4" Content="×" FontSize="11" Padding="7,3" Click="QueueRemove_Click" ToolTip.Tip="Remove from queue" />
                       </Grid>
                     </Border>
                   </DataTemplate>
                 </ListBox.ItemTemplate>
               </ListBox>
               <Canvas IsHitTestVisible="False" ClipToBounds="True">
-                <Border x:Name="DragGhost" IsVisible="False" Height="56"
+                <Border x:Name="DragGhost" IsVisible="False" Height="40"
                         Background="#334657" BorderBrush="#B8F36B" BorderThickness="2"
-                        CornerRadius="9" Padding="11,7" Opacity="0.94">
+                        CornerRadius="7" Padding="8,3" Opacity="0.94">
                   <Grid ColumnDefinitions="50,*,Auto" ColumnSpacing="6" VerticalAlignment="Center">
                     <TextBlock x:Name="DragGhostPosition" Foreground="#B8F36B" VerticalAlignment="Center" />
                     <StackPanel Grid.Column="1" Spacing="2" MinWidth="0">
-                      <TextBlock x:Name="DragGhostTitle" FontWeight="SemiBold"
+                      <TextBlock x:Name="DragGhostTitle" FontSize="13" FontWeight="SemiBold"
                                  TextTrimming="CharacterEllipsis" MaxLines="1" />
-                      <TextBlock x:Name="DragGhostArtist" FontSize="11" Foreground="#BDCBD6"
+                      <TextBlock x:Name="DragGhostArtist" FontSize="10" Foreground="#BDCBD6"
                                  TextTrimming="CharacterEllipsis" MaxLines="1" />
                     </StackPanel>
                     <TextBlock x:Name="DragGhostDuration" Grid.Column="2" Foreground="#BDCBD6"
@@ -329,8 +329,8 @@
       </Border>
 
       <Border Grid.Column="1" Background="#1A222E" BorderBrush="#303B49" BorderThickness="1"
-              CornerRadius="16" Padding="18">
-        <StackPanel Spacing="13">
+              CornerRadius="12" Padding="12">
+        <StackPanel Spacing="9">
           <TextBlock Text="PLAYBACK" FontSize="11" FontWeight="Bold" Foreground="#B8F36B" />
           <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
             <TextBlock Text="Volume" VerticalAlignment="Center" />

@@ -552,7 +552,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             DragPreview.IsVisible = true;
         }
         Canvas.SetLeft(DragPreview, 8);
-        Canvas.SetTop(DragPreview, Math.Clamp(point.Y - 28, 0, Math.Max(0, QueueInput.Bounds.Height - 56)));
+        Canvas.SetTop(DragPreview, Math.Clamp(point.Y - DragPreview.Height / 2, 0,
+            Math.Max(0, QueueInput.Bounds.Height - DragPreview.Height)));
         SetQueueDropTarget(FindQueueRow(point), point);
         e.Handled = true;
     }
