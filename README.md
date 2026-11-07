@@ -102,14 +102,14 @@ To cross-build the self-contained Windows x64 EXE from macOS or Linux, run
 `./build-windows-exe.sh`. The result is `dist/A-mpd-win-x64.exe`.
 
 To cross-build the self-contained Linux x86_64 packages, install Python 3 and
-`zstd`, then run `python3 build-linux-packages.py`. With version 0.2.9 this
-produces `dist/a-mpd_0.2.9_amd64.deb` for Debian Trixie and
-`dist/a-mpd-0.2.9-1-x86_64.pkg.tar.zst` for Arch Linux. Install either package
+`zstd`, then run `python3 build-linux-packages.py`. With version 0.2.10 this
+produces `dist/a-mpd_0.2.10_amd64.deb` for Debian Trixie and
+`dist/a-mpd-0.2.10-1-x86_64.pkg.tar.zst` for Arch Linux. Install either package
 with its distribution's package manager:
 
 ```sh
-sudo apt install ./dist/a-mpd_0.2.9_amd64.deb
-sudo pacman -U dist/a-mpd-0.2.9-1-x86_64.pkg.tar.zst
+sudo apt install ./dist/a-mpd_0.2.10_amd64.deb
+sudo pacman -U dist/a-mpd-0.2.10-1-x86_64.pkg.tar.zst
 ```
 
 Run `a-mpd` after installation. Avalonia uses X11 by default, including

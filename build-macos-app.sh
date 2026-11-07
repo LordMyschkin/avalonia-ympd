@@ -37,8 +37,8 @@ cat > "$app/Contents/Info.plist" <<PLIST
   <key>CFBundleName</key><string>A-mpd</string>
   <key>CFBundleDisplayName</key><string>A-mpd</string>
   <key>CFBundleIdentifier</key><string>org.lordmyschkin.ampd</string>
-  <key>CFBundleVersion</key><string>11</string>
-  <key>CFBundleShortVersionString</key><string>0.2.9</string>
+  <key>CFBundleVersion</key><string>12</string>
+  <key>CFBundleShortVersionString</key><string>0.2.10</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleExecutable</key><string>A-mpd</string>
   <key>CFBundleIconFile</key><string>app.icns</string>
