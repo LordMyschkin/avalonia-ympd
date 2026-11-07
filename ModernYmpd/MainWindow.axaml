@@ -169,7 +169,7 @@
                 <ListBox.ItemTemplate>
                   <DataTemplate>
                     <Border Classes="queue-row" Background="#212C3A" CornerRadius="7" Padding="8,2" Margin="0,1"
-                            PointerPressed="Queue_PointerPressed">
+                            PointerPressed="Queue_PointerPressed" DoubleTapped="Queue_DoubleTapped">
                       <Grid ColumnDefinitions="50,*,Auto,Auto,Auto" ColumnSpacing="6" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                           <TextBlock Text="⠿" Foreground="#B8F36B" ToolTip.Tip="Drag to reorder" />

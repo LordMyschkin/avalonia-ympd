@@ -509,8 +509,18 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private async void QueuePlay_Click(object? sender, RoutedEventArgs e)
     {
         if ((sender as Button)?.DataContext is MpdSong song)
-            await ActAsync(() => client.PlayIdAsync(song.Id), $"Playing {song.DisplayTitle}");
+            await PlayQueueSongAsync(song);
     }
+    private async void Queue_DoubleTapped(object? sender, TappedEventArgs e)
+    {
+        if (sender is not Border { DataContext: MpdSong song } || draggingQueueSong ||
+            e.Source is Visual visual && visual.FindAncestorOfType<Button>(true) is not null) return;
+        ClearQueueDrag();
+        e.Handled = true;
+        await PlayQueueSongAsync(song);
+    }
+    private Task PlayQueueSongAsync(MpdSong song) =>
+        ActAsync(() => client.PlayIdAsync(song.Id), $"Playing {song.DisplayTitle}");
     private async void QueueRemove_Click(object? sender, RoutedEventArgs e)
     {
         if ((sender as Button)?.DataContext is MpdSong song)
